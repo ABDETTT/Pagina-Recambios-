@@ -70,3 +70,25 @@ body {
 .results-info {
     color: #6c757d;
 }
+
+.filter-sidebar {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    height: fit-content;
+}
+
+.product-img {
+    height: 180px;
+    object-fit: cover;
+}
+
+.card-product {
+    transition: 0.3s;
+    border: none;
+}
+
+.card-product:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}

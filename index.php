@@ -1,176 +1,148 @@
 <?php
-// 0. INICIAMOS LA SESIÓN
-session_start();
-
-// 1. Incluimos la conexión a la base de datos
+$pagina_titulo = "Inicio | RecambiosPro - Tu tienda de repuestos";
 require 'db.php';
-
-// 2. Lógica de Búsqueda y Paginación
-$busqueda = isset($_GET['s']) ? trim($_GET['s']) : '';
-$pagina = isset($_GET['p']) ? (int)$_GET['p'] : 1;
-if ($pagina < 1) $pagina = 1;
-$por_pagina = 8;
-$offset = ($pagina - 1) * $por_pagina;
+include 'header.php';
 
 try {
-    // 3. Consulta SQL (Busca en productos y trae el nombre de la categoría)
-    if (!empty($busqueda)) {
-        $sql = "SELECT p.*, c.nombre as cat_nombre 
-                FROM productos p 
-                LEFT JOIN categorias c ON p.categoria_id = c.id
-                WHERE p.nombre ILIKE :query OR p.descripcion ILIKE :query OR c.nombre ILIKE :query
-                ORDER BY p.id DESC LIMIT :limit OFFSET :offset";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':query', '%' . $busqueda . '%');
-    } else {
-        $sql = "SELECT p.*, c.nombre as cat_nombre 
-                FROM productos p 
-                LEFT JOIN categorias c ON p.categoria_id = c.id
-                ORDER BY p.id DESC LIMIT :limit OFFSET :offset";
-        $stmt = $pdo->prepare($sql);
-    }
-
-    $stmt->bindValue(':limit', (int)$por_pagina, PDO::PARAM_INT);
-    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
-    $stmt->execute();
-    $productos = $stmt->fetchAll();
-
+    // Solo obtenemos las 4 ÚLTIMAS novedades para el escaparate
+    $sql = "SELECT p.*, c.nombre as cat_nombre 
+            FROM productos p 
+            LEFT JOIN categorias c ON p.categoria_id = c.id 
+            ORDER BY p.id DESC LIMIT 4";
+    $stmt = $pdo->query($sql);
+    $novedades = $stmt->fetchAll();
 } catch (PDOException $e) {
     die("Error en la consulta: " . $e->getMessage());
 }
 ?>
 
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RecambiosPro | Tienda Oficial</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  
-  <style>
-    .card-hover { transition: transform 0.3s ease; }
-    .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
-    .hero-section { 
-        background: linear-gradient(rgba(0,36,107,0.8), rgba(0,0,0,0.7)), url('img/img4.png'); 
-        background-size: cover; background-position: center; min-height: 400px; 
-    }
-  </style>
-</head>
-
-<body class="d-flex flex-column min-vh-100 bg-light">
-  
-  <header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
-      <div class="container">
-        <a class="navbar-brand fw-bold" href="index.php">
-          <i class="bi bi-gear-wide-connected text-warning"></i> RecambiosPro
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto align-items-center">
-            <li class="nav-item"><a class="nav-link" href="index.php">Inicio</a></li>
-            
-            <?php if (isset($_SESSION['usuario_nombre'])): ?>
-                <li class="nav-item dropdown ms-lg-3">
-                    <a class="nav-link dropdown-toggle text-white fw-bold" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle me-1"></i> Hola, <?php echo htmlspecialchars($_SESSION['usuario_nombre']); ?>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-bag me-2"></i> Mis Pedidos</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Salir</a></li>
-                    </ul>
-                </li>
-
-                <?php if (isset($_SESSION['es_admin']) && $_SESSION['es_admin'] === true): ?>
-                    <li class="nav-item ms-lg-2">
-                        <a class="btn btn-warning btn-sm fw-bold shadow-sm" href="crear.php">
-                            <i class="bi bi-plus-lg"></i> Añadir Pieza
-                        </a>
-                    </li>
-                <?php endif; ?>
-
-            <?php else: ?>
-                <li class="nav-item ms-lg-3">
-                    <a class="btn btn-outline-light btn-sm px-3" href="login.php">Iniciar Sesión</a>
-                </li>
-                <li class="nav-item ms-2">
-                    <a class="btn btn-light btn-sm px-3 text-primary fw-bold" href="registro.php">Registrarse</a>
-                </li>
-            <?php endif; ?>
-          </ul>
-        </div>
+<main>
+  <section class="hero-section d-flex align-items-center text-white text-center position-relative" style="background: linear-gradient(rgba(0,36,107,0.8), rgba(0,0,0,0.8)), url('img/img4.png'); background-size: cover; background-position: center; min-height: 500px;">
+    <div class="container z-1">
+      <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill fw-bold text-uppercase tracking-wide">Calidad OEM Garantizada</span>
+      <h1 class="display-3 fw-bold mb-3 text-shadow">El recambio exacto,<br>al mejor precio.</h1>
+      <p class="lead mb-4 text-light opacity-75">Encuentra piezas compatibles para tu vehículo en segundos.</p>
+      
+      <div class="card p-2 mx-auto shadow-lg border-0" style="max-width: 650px; background: rgba(255,255,255,0.95); border-radius: 50px;">
+        <form action="catalogo.php" method="GET" class="d-flex gap-2">
+          <input class="form-control border-0 bg-transparent px-4 shadow-none" type="search" name="s" placeholder="Ej: Pastillas de freno, filtro de aceite..." required style="border-radius: 50px;">
+          <button class="btn btn-primary px-4 fw-bold rounded-pill" type="submit" style="min-width: 120px;"><i class="bi bi-search me-2"></i>Buscar</button>
+        </form>
       </div>
-    </nav>
-  </header>
+    </div>
+  </section>
 
-  <main>
-    <section class="hero-section d-flex align-items-center text-white text-center">
+  <section class="bg-white py-5 border-bottom">
       <div class="container">
-        <h1 class="display-4 fw-bold mb-3">Tu Recambio al Instante</h1>
-        <div class="card p-2 mx-auto shadow-lg border-0" style="max-width: 600px; background: rgba(255,255,255,0.95);">
-          <form class="d-flex gap-2" method="GET">
-            <input class="form-control form-control-lg border-0" type="search" name="s" placeholder="Buscar pieza..." value="<?php echo htmlspecialchars($busqueda); ?>">
-            <button class="btn btn-primary px-4" type="submit">Buscar</button>
-          </form>
-        </div>
+          <div class="row text-center g-4">
+              <div class="col-6 col-md-3">
+                  <i class="bi bi-truck display-5 text-primary mb-3"></i>
+                  <h6 class="fw-bold">Envío en 24/48h</h6>
+                  <p class="text-muted small mb-0">Para pedidos en península</p>
+              </div>
+              <div class="col-6 col-md-3">
+                  <i class="bi bi-shield-check display-5 text-primary mb-3"></i>
+                  <h6 class="fw-bold">Garantía de 2 años</h6>
+                  <p class="text-muted small mb-0">En todas nuestras piezas</p>
+              </div>
+              <div class="col-6 col-md-3">
+                  <i class="bi bi-arrow-return-left display-5 text-primary mb-3"></i>
+                  <h6 class="fw-bold">Devolución Fácil</h6>
+                  <p class="text-muted small mb-0">Tienes 30 días para cambios</p>
+              </div>
+              <div class="col-6 col-md-3">
+                  <i class="bi bi-headset display-5 text-primary mb-3"></i>
+                  <h6 class="fw-bold">Soporte Técnico</h6>
+                  <p class="text-muted small mb-0">Te ayudamos a elegir</p>
+              </div>
+          </div>
       </div>
-    </section>
+  </section>
 
-    <section class="container py-5">
+  <section class="container py-5 mt-4">
+      <div class="text-center mb-5">
+          <h2 class="fw-bold">Explora por Categorías</h2>
+          <p class="text-muted">Encuentra rápidamente lo que tu coche necesita</p>
+      </div>
+      
       <div class="row g-4">
-        <?php foreach ($productos as $prod): ?>
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-          <div class="card h-100 shadow-sm border-0 card-hover bg-white">
-            <div class="bg-light text-center py-4 border-bottom position-relative">
-                <i class="bi bi-tools text-secondary opacity-25" style="font-size: 4rem;"></i>
-                <span class="badge bg-dark position-absolute top-0 start-0 m-2">
-                    <?php echo htmlspecialchars($prod['cat_nombre'] ?? 'General'); ?>
-                </span>
-            </div>
+          <div class="col-md-4">
+              <a href="catalogo.php?categoria=1" class="text-decoration-none">
+                  <div class="card border-0 shadow-sm text-center py-5 card-hover bg-primary text-white" style="border-radius: 20px;">
+                      <i class="bi bi-droplet-half display-3 mb-3 text-warning"></i>
+                      <h4 class="fw-bold mb-0">Aceites y Líquidos</h4>
+                  </div>
+              </a>
+          </div>
+          <div class="col-md-4">
+              <a href="catalogo.php?categoria=2" class="text-decoration-none">
+                  <div class="card border-0 shadow-sm text-center py-5 card-hover bg-dark text-white" style="border-radius: 20px;">
+                      <i class="bi bi-disc display-3 mb-3 text-info"></i>
+                      <h4 class="fw-bold mb-0">Sistema de Frenos</h4>
+                  </div>
+              </a>
+          </div>
+          <div class="col-md-4">
+              <a href="catalogo.php?categoria=3" class="text-decoration-none">
+                  <div class="card border-0 shadow-sm text-center py-5 card-hover bg-secondary text-white" style="border-radius: 20px;">
+                      <i class="bi bi-lightning-charge display-3 mb-3 text-warning"></i>
+                      <h4 class="fw-bold mb-0">Baterías y Eléctrico</h4>
+                  </div>
+              </a>
+          </div>
+      </div>
+  </section>
 
-            <div class="card-body d-flex flex-column p-3">
-              <h5 class="card-title h6 fw-bold mb-1"><?php echo htmlspecialchars($prod['nombre']); ?></h5>
-              <div class="d-flex justify-content-between align-items-center mb-3 mt-auto">
-                <span class="text-primary fw-bold fs-5"><?php echo number_format($prod['precio'], 2); ?> €</span>
+  <section class="bg-light py-5">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end mb-4">
+          <div>
+              <h2 class="fw-bold mb-0">Últimas Novedades</h2>
+              <p class="text-muted mb-0">Recién llegados a nuestro almacén</p>
+          </div>
+          <a href="catalogo.php" class="btn btn-outline-primary rounded-pill fw-bold d-none d-sm-inline-block">Ver todo el catálogo <i class="bi bi-arrow-right"></i></a>
+      </div>
+
+      <div class="row g-4">
+        <?php foreach ($novedades as $prod): ?>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="card h-100 shadow-sm border-0 card-hover bg-white" style="border-radius: 15px; overflow: hidden;">
+            <div class="bg-white text-center border-bottom position-relative" style="height: 220px;">
+                <?php $foto = !empty($prod['imagen']) ? 'img/productos/' . $prod['imagen'] : 'img/productos/placeholder.png'; ?>
+                <img src="<?php echo $foto; ?>" class="img-fluid h-100 w-100" style="object-fit: cover;" alt="<?php echo htmlspecialchars($prod['nombre']); ?>">
+                <span class="badge bg-dark position-absolute top-0 start-0 m-3 shadow-sm rounded-pill px-3 py-2"><?php echo htmlspecialchars($prod['cat_nombre'] ?? 'General'); ?></span>
                 
+                <span class="badge bg-danger position-absolute top-0 end-0 m-3 shadow-sm rounded-pill px-3 py-2"><i class="bi bi-star-fill me-1"></i>Nuevo</span>
+            </div>
+            
+            <div class="card-body d-flex flex-column p-4">
+              <h5 class="card-title h6 fw-bold mb-2"><?php echo htmlspecialchars($prod['nombre']); ?></h5>
+              <div class="d-flex justify-content-between align-items-center mb-4 mt-auto">
+                <span class="text-primary fw-bold fs-4"><?php echo number_format($prod['precio'], 2); ?> €</span>
                 <?php if(($prod['stock'] ?? 0) > 0): ?>
-                    <span class="badge bg-success-subtle text-success">Stock</span>
+                    <span class="small text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>En stock</span>
                 <?php else: ?>
-                    <span class="badge bg-danger-subtle text-danger">Agotado</span>
+                    <span class="small text-danger fw-bold"><i class="bi bi-x-circle-fill me-1"></i>Agotado</span>
                 <?php endif; ?>
               </div>
-              <form action="agregar_carrito.php" method="POST" class="w-100 mb-2">
+              
+              <form action="agregar_carrito.php" method="POST" class="w-100">
                   <input type="hidden" name="id_producto" value="<?php echo $prod['id']; ?>">
-                  <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm" <?php echo (($prod['stock'] ?? 0) <= 0) ? 'disabled' : ''; ?>>
-                      <i class="bi bi-cart-plus me-1"></i> Añadir al carro
+                  <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm rounded-pill py-2" <?php echo (($prod['stock'] ?? 0) <= 0) ? 'disabled' : ''; ?>>
+                      <i class="bi bi-cart-plus me-2"></i> Añadir al carro
                   </button>
               </form>
-              <?php if (isset($_SESSION['es_admin']) && $_SESSION['es_admin'] === true): ?>
-                  <div class="d-flex justify-content-end border-top pt-2 mt-2">
-                      <a href="editar.php?id=<?php echo $prod['id']; ?>" class="text-secondary me-3" title="Editar"><i class="bi bi-pencil-square"></i></a>
-                      <a href="borrar.php?id=<?php echo $prod['id']; ?>" class="text-danger" title="Borrar" onclick="return confirm('¿Seguro?')"><i class="bi bi-trash3"></i></a>
-                  </div>
-              <?php endif; ?>
             </div>
           </div>
         </div>
         <?php endforeach; ?>
       </div>
-    </section>
-  </main>
-
-  <footer class="bg-dark text-white py-4 mt-auto">
-    <div class="container text-center">
-      <p class="small text-secondary mb-0">&copy; 2026 RecambiosPro - Panel de Control Conectado</p>
+      
+      <div class="text-center mt-4 d-block d-sm-none">
+          <a href="catalogo.php" class="btn btn-outline-primary rounded-pill w-100 fw-bold py-2">Ver todo el catálogo</a>
+      </div>
     </div>
-  </footer>
+  </section>
+</main>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php include 'footer.php'; ?>
