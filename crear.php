@@ -1,8 +1,7 @@
 <?php
 session_start();
-require 'db.php';
+require 'includes/db.php'; 
 
-// Seguridad: Solo admin puede añadir productos
 if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
     header("Location: index.php");
     exit;
@@ -13,9 +12,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $precio = $_POST['precio'];
     $categoria = $_POST['categoria'];
     $descripcion = $_POST['descripcion'];
-    $stock = (int)$_POST['stock']; // Capturamos el stock del formulario
+    $stock = (int)$_POST['stock'];
 
-    // Añadimos 'stock' y 'descripcion' a la consulta SQL
+    
     $sql = "INSERT INTO productos (nombre, precio, categoria_id, descripcion, stock) 
             VALUES (?, ?, ?, ?, ?)";
     $stmt = $pdo->prepare($sql);

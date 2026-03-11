@@ -1,10 +1,10 @@
 <?php
 $pagina_titulo = "Inicio | RecambiosPro - Tu tienda de repuestos";
-require 'db.php';
-include 'header.php';
+require 'includes/db.php'; 
+include 'includes/header.php';
 
 try {
-    // Solo obtenemos las 4 ÚLTIMAS novedades para el escaparate
+    
     $sql = "SELECT p.*, c.nombre as cat_nombre 
             FROM productos p 
             LEFT JOIN categorias c ON p.categoria_id = c.id 
@@ -145,4 +145,4 @@ try {
   </section>
 </main>
 
-<?php include 'footer.php'; ?>
+<?php include 'includes/footer.php'; ?>

@@ -3,7 +3,7 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-require 'db.php';
+require 'includes/db.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nombre = $_POST['nombre'] ?? '';
@@ -11,18 +11,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'] ?? '';
     $pass_plana = $_POST['password'] ?? '';
     
-    // Encriptación segura
     $pass_encriptada = password_hash($pass_plana, PASSWORD_BCRYPT);
-    
-    // Rol 2 = Cliente
+
     $rol_cliente = 2;
 
     try {
-        // --- AQUÍ SE DEFINE LA VARIABLE $sql ---
+        
         $sql = "INSERT INTO perfiles (id, nombre, apellido, email, password, rol_id) 
                 VALUES (gen_random_uuid(), :nom, :ape, :email, :pass, :rol)";
         
-        // Ahora sí, preparamos la consulta con la variable definida
+        
         $stmt = $pdo->prepare($sql);
         
         $stmt->execute([
@@ -33,12 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'rol'   => $rol_cliente
         ]);
 
-        // Si llega aquí, funcionó. Redirigimos al login.
+        
         header("Location: login.php?success=1");
         exit;
 
     } catch (PDOException $e) {
-        // Si el error es por email duplicado
+        
         if ($e->getCode() == 23505) {
             $error = "Este email ya está registrado.";
         } else {

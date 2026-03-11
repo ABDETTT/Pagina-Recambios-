@@ -1,8 +1,7 @@
 <?php
 session_start();
-require 'db.php';
+require 'includes/db.php'; 
 
-// 1. SEGURIDAD: Si no es admin, fuera de aquí
 if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
     header("Location: index.php");
     exit;
@@ -12,7 +11,7 @@ $id = $_GET['id'] ?? null;
 $producto = null;
 
 if ($id) {
-    // 2. Obtener los datos actuales del producto
+    
     $stmt = $pdo->prepare("SELECT * FROM productos WHERE id = ?");
     $stmt->execute([$id]);
     $producto = $stmt->fetch();
@@ -22,7 +21,6 @@ if (!$producto) {
     die("Producto no encontrado.");
 }
 
-// 3. Procesar la actualización cuando se envía el formulario
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nombre = $_POST['nombre'];
     $precio = $_POST['precio'];

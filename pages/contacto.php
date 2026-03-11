@@ -1,15 +1,10 @@
 <?php
-// 1. Definimos el título y cargamos nuestras secciones
 $pagina_titulo = "Contacto | RecambiosPro";
-require 'db.php';
-include 'header.php';
+require '../includes/db.php'; 
+include '../includes/header.php';
 
-// 2. Lógica sencilla para procesar el formulario
 $mensaje_enviado = false;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Aquí en un proyecto real enviarías un email con la función mail() de PHP
-    // o guardarías el mensaje en una tabla "mensajes" de la base de datos.
-    // Por ahora, solo simulamos que se ha enviado con éxito.
     $mensaje_enviado = true;
 }
 ?>
@@ -105,4 +100,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </main>
 
-<?php include 'footer.php'; ?>
+<?php include '../includes/footer.php'; ?>

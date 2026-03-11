@@ -34,7 +34,7 @@ $titulo = isset($pagina_titulo) ? $pagina_titulo : 'RecambiosPro | Tu tienda de 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm py-3 border-bottom border-primary border-3">
       <div class="container align-items-center">
         
-        <a class="navbar-brand fw-bold fs-4 d-flex align-items-center text-white" href="index.php">
+        <a class="navbar-brand fw-bold fs-4 d-flex align-items-center text-white" href="/RecambiosPro/index.php">
           <i class="bi bi-gear-wide-connected text-warning me-2"></i> Recambios<span class="text-primary">Pro</span>
         </a>
         
@@ -45,12 +45,18 @@ $titulo = isset($pagina_titulo) ? $pagina_titulo : 'RecambiosPro | Tu tienda de 
         <div class="collapse navbar-collapse" id="navbarNav">
           
           <ul class="navbar-nav ms-auto align-items-center gap-2 gap-lg-3">
-            <li class="nav-item"><a class="nav-link nav-link-custom" href="index.php">Inicio</a></li>
-            <li class="nav-item"><a class="nav-link nav-link-custom" href="catalogo.php">Catálogo</a></li>
-            
-            <li class="nav-item"><a class="nav-link nav-link-custom" href="tutoriales.php"></i> Tutoriales</a></li>
-            
-            <li class="nav-item"><a class="nav-link nav-link-custom" href="contacto.php">Contacto</a></li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-custom" href="/RecambiosPro/index.php">Inicio</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-custom" href="/RecambiosPro/pages/catalogo.php">Catálogo</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-custom" href="/RecambiosPro/pages/tutoriales.php">Tutoriales</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link nav-link-custom" href="/RecambiosPro/pages/contacto.php">Contacto</a>
+            </li>
             
             <li class="nav-item d-none d-lg-block"><div class="vr bg-light opacity-25" style="height: 24px;"></div></li>
             
@@ -63,21 +69,21 @@ $titulo = isset($pagina_titulo) ? $pagina_titulo : 'RecambiosPro | Tu tienda de 
                         <li><a class="dropdown-item py-2" href="#"><i class="bi bi-box-seam me-2 text-primary"></i> Mis Pedidos</a></li>
                         <?php if (isset($_SESSION['es_admin']) && $_SESSION['es_admin'] === true): ?>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item py-2" href="crear.php"><i class="bi bi-plus-circle me-2 text-warning"></i> Añadir Producto</a></li>
+                            <li><a class="dropdown-item py-2" href="/RecambiosPro/crear.php"><i class="bi bi-plus-circle me-2 text-warning"></i> Añadir Producto</a></li>
                         <?php endif; ?>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item py-2 text-danger fw-bold" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Salir</a></li>
+                        <li><a class="dropdown-item py-2 text-danger fw-bold" href="/RecambiosPro/actions/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Salir</a></li>
                     </ul>
                 </li>
             <?php else: ?>
                 <li class="nav-item d-flex gap-2 w-100 justify-content-center mt-2 mt-lg-0">
-                    <a class="btn btn-outline-light btn-sm fw-bold rounded-pill px-3 py-2" href="login.php">Iniciar Sesión</a>
-                    <a class="btn btn-primary btn-sm fw-bold rounded-pill px-3 py-2" href="registro.php">Registrarse</a>
+                    <a class="btn btn-outline-light btn-sm fw-bold rounded-pill px-3 py-2" href="/RecambiosPro/login.php">Iniciar Sesión</a>
+                    <a class="btn btn-primary btn-sm fw-bold rounded-pill px-3 py-2" href="/RecambiosPro/registro.php">Registrarse</a>
                 </li>
             <?php endif; ?>
 
             <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
-                <a class="btn btn-warning text-dark fw-bold rounded-pill px-3 py-2 d-flex align-items-center position-relative shadow-sm" href="carrito.php">
+                <a class="btn btn-warning text-dark fw-bold rounded-pill px-3 py-2 d-flex align-items-center position-relative shadow-sm" href="/RecambiosPro/pages/carrito.php">
                     <i class="bi bi-cart3 fs-5"></i>
                     <?php if($items_carrito > 0): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-warning" style="font-size: 0.75em;">
@@ -87,6 +93,7 @@ $titulo = isset($pagina_titulo) ? $pagina_titulo : 'RecambiosPro | Tu tienda de 
                 </a>
             </li>
           </ul>
+
         </div>
       </div>
     </nav>

@@ -1,13 +1,13 @@
 <?php
 session_start();
-require 'db.php'; // Conexión a Supabase
+require 'includes/db.php';  
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
     try {
-        // Buscamos al usuario y obtenemos el nombre de su rol (admin o cliente)
+        
         $sql = "SELECT p.*, r.nombre as nombre_rol 
                 FROM perfiles p 
                 INNER JOIN roles r ON p.rol_id = r.id 
@@ -17,13 +17,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute(['email' => $email]);
         $user = $stmt->fetch();
 
-        // Verificamos si el usuario existe y la contraseña coincide
+        
         if ($user && password_verify($password, $user['password'])) {
             // Guardamos datos en la sesión
             $_SESSION['usuario_id'] = $user['id'];
             $_SESSION['usuario_nombre'] = $user['nombre'];
             
-            // Verificamos si es admin
+            
             $_SESSION['es_admin'] = ($user['nombre_rol'] === 'admin');
 
             header("Location: index.php");

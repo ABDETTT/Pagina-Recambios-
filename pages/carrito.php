@@ -1,8 +1,7 @@
 <?php
 session_start();
-require 'db.php';
+require '../includes/db.php'; 
 
-// 1. Lógica para vaciar el carrito (debe ir ANTES del header)
 if (isset($_GET['vaciar'])) {
     unset($_SESSION['carrito']);
     header("Location: carrito.php");
@@ -12,9 +11,8 @@ if (isset($_GET['vaciar'])) {
 $carrito = $_SESSION['carrito'] ?? [];
 $total = 0;
 
-// 2. Título de la página y carga del Header
 $pagina_titulo = "Mi Carrito | RecambiosPro";
-include 'header.php';
+include '../includes/header.php'; 
 ?>
 
 <main class="container py-5" style="max-width: 900px;">
@@ -94,4 +92,4 @@ include 'header.php';
     <?php endif; ?>
 </main>
 
-<?php include 'footer.php'; ?>
+<?php include '../includes/footer.php'; ?>
