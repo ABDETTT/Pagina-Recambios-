@@ -15,7 +15,7 @@ $foto = !empty($p['imagen']) ? '../assets/img/productos/' . $p['imagen'] : '../a
           <?php echo htmlspecialchars($p['nombre']); ?>
       </h6>
       <p class="text-primary fw-bold fs-5 mb-3"><?php echo number_format($p['precio'], 2); ?> €</p>
-      <form action="../actions/agregar_carrito.php" method="POST" class="mt-auto">
+      <form action="/RecambiosPro/actions/agregar_carrito.php" method="POST" class="mt-auto">
         <input type="hidden" name="id_producto" value="<?php echo $p['id']; ?>">
         <button type="submit" class="btn btn-primary w-100 btn-sm fw-bold rounded-pill" <?php echo (($p['stock'] ?? 0) <= 0) ? 'disabled' : ''; ?>>
             <i class="bi bi-cart-plus me-1"></i> Añadir
@@ -55,7 +55,7 @@ $foto = !empty($p['imagen']) ? '../assets/img/productos/' . $p['imagen'] : '../a
                         <?php endif; ?>
                     </div>
                     
-                    <form action="../actions/agregar_carrito.php" method="POST" class="d-flex gap-2 mb-4">
+                    <form action="/RecambiosPro/actions/agregar_carrito.php" method="POST" class="d-flex gap-2 mb-4">
                         <input type="hidden" name="id_producto" value="<?php echo $p['id']; ?>">
                         <button type="submit" class="btn btn-primary btn-lg flex-grow-1 fw-bold rounded-pill shadow-sm" <?php echo (($p['stock'] ?? 0) <= 0) ? 'disabled' : ''; ?>>
                             <i class="bi bi-cart-plus me-2"></i> Añadir al carrito
@@ -64,7 +64,6 @@ $foto = !empty($p['imagen']) ? '../assets/img/productos/' . $p['imagen'] : '../a
                 </div>
 
                 <?php
-                // Lógica para productos relacionados
                 $relacionados = [];
                 if (!empty($p['categoria_id'])) {
                     try {

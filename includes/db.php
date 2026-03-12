@@ -5,7 +5,6 @@ $db   = 'postgres';
 $user = 'postgres.tckqheerzbjjpbfavwxn';
 $pass = 'ABDEhajji2003';
 
-// Asegúrate de que no haya espacios extra alrededor del signo igual
 $dsn = "pgsql:host={$host};port={$port};dbname={$db}";
 
 $options = [
@@ -18,7 +17,7 @@ try {
     $pdo = new PDO($dsn, $user, $pass, $options);
     
 } catch (\PDOException $e) {
-    // Esto te dará una pista más clara si el problema es de red o de sintaxis
+    
     die("Error de conexión: " . $e->getMessage());
 }
 ?>

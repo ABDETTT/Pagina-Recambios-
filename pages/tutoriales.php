@@ -66,38 +66,7 @@ $tutoriales = [
     ]
 ];
 ?>
-
-<style>
-    .desc-clamp {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;  
-        overflow: hidden;
-    }
-
-    .tarjeta-tut {
-        animation: fadeIn 0.4s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* CORRECCIÓN DE LEGIBILIDAD EN HOVER */
-    #botones-filtro .btn-outline-secondary:hover {
-        background-color: #495057 !important; /* Gris oscuro */
-        color: #ffffff !important; /* Texto blanco puro */
-        border-color: #495057 !important;
-    }
-
-    /* Estilo para el botón activo */
-    #botones-filtro .btn-primary.active {
-        background-color: #0d6efd !important;
-        color: #ffffff !important;
-        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
-    }
-</style>
+<link rel="stylesheet" href="../assets/css/Styles">
 
 <main class="bg-light pb-5">
     <section class="bg-dark text-white py-5 mb-5 text-center" style="background: linear-gradient(rgba(0,36,107,0.9), rgba(0,0,0,0.9)), url('../assets/img/img4.png'); background-size: cover; background-position: center;">

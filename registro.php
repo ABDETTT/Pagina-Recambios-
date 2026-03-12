@@ -1,5 +1,4 @@
 <?php
-// 1. Mostrar errores para depurar
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 

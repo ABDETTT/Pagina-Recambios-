@@ -44,17 +44,7 @@ try {
     die("Error en la consulta: " . $e->getMessage());
 }
 ?>
-
-<style>
-  .filter-sidebar { background: #fff; border-radius: 10px; padding: 20px; height: fit-content; }
-  .product-img { height: 180px; object-fit: cover; }
-  .card-product { transition: 0.3s; border: none; }
-  .card-product:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
-  .cursor-pointer { cursor: pointer; }
-  .hover-scale { transition: transform 0.2s; }
-  .hover-scale:hover { transform: scale(1.05); }
-</style>
-
+<link rel="stylesheet" href="../assets/css/Styles">
 <div class="container py-5">
   <div class="row">
     
