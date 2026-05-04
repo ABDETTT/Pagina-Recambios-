@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'includes/db.php'; 
+require 'supabase_api.php'; 
 
 if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
     header("Location: index.php");
@@ -8,18 +8,17 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nombre = $_POST['nombre'];
-    $precio = $_POST['precio'];
-    $categoria = $_POST['categoria'];
-    $descripcion = $_POST['descripcion'];
-    $stock = (int)$_POST['stock'];
+    $nuevoProducto = [
+        'nombre'       => $_POST['nombre'],
+        'precio'       => $_POST['precio'],
+        'categoria_id' => (int)$_POST['categoria'],
+        'descripcion'  => $_POST['descripcion'],
+        'stock'        => (int)$_POST['stock']
+    ];
 
+    $respuesta = consultaSupabase("productos", "POST", $nuevoProducto);
     
-    $sql = "INSERT INTO productos (nombre, precio, categoria_id, descripcion, stock) 
-            VALUES (?, ?, ?, ?, ?)";
-    $stmt = $pdo->prepare($sql);
-    
-    if ($stmt->execute([$nombre, $precio, $categoria, $descripcion, $stock])) {
+    if (!isset($respuesta['error'])) {
         header("Location: index.php?creado=1");
         exit;
     }

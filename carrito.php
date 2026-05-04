@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../includes/db.php'; 
+require 'supabase_api.php'; 
 
 if (isset($_GET['vaciar'])) {
     unset($_SESSION['carrito']);
@@ -12,7 +12,7 @@ $carrito = $_SESSION['carrito'] ?? [];
 $total = 0;
 
 $pagina_titulo = "Mi Carrito | RecambiosPro";
-include '../includes/header.php'; 
+include 'header.php'; 
 ?>
 
 <main class="container py-5" style="max-width: 900px;">
@@ -91,4 +91,4 @@ include '../includes/header.php';
     <?php endif; ?>
 </main>
 
-<?php include '../includes/footer.php'; ?>
+<?php include 'footer.php'; ?>

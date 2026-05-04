@@ -1,10 +1,7 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+require 'supabase_api.php';
 
-require 'includes/db.php'; 
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = $_POST['nombre'] ?? '';
     $apellido = $_POST['apellido'] ?? '';
     $email = $_POST['email'] ?? '';
@@ -12,35 +9,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     $pass_encriptada = password_hash($pass_plana, PASSWORD_BCRYPT);
 
-    $rol_cliente = 2;
+    $datos_usuario = [
+        'nombre'   => $nombre,
+        'apellido' => $apellido,
+        'email'    => $email,
+        'password' => $pass_encriptada,
+        'rol_id'   => 2
+    ];
 
-    try {
-        
-        $sql = "INSERT INTO perfiles (id, nombre, apellido, email, password, rol_id) 
-                VALUES (gen_random_uuid(), :nom, :ape, :email, :pass, :rol)";
-        
-        
-        $stmt = $pdo->prepare($sql);
-        
-        $stmt->execute([
-            'nom'   => $nombre,
-            'ape'   => $apellido,
-            'email' => $email,
-            'pass'  => $pass_encriptada,
-            'rol'   => $rol_cliente
-        ]);
+    $respuesta = consultaSupabase('perfiles', 'POST', $datos_usuario);
 
-        
-        header("Location: login.php?success=1");
-        exit;
-
-    } catch (PDOException $e) {
-        
-        if ($e->getCode() == 23505) {
+    if (isset($respuesta['error']) || isset($respuesta['code'])) {
+        if (isset($respuesta['code']) && $respuesta['code'] === '23505') {
             $error = "Este email ya está registrado.";
         } else {
-            $error = "Error en la base de datos: " . $e->getMessage();
+            $mensaje = $respuesta['message'] ?? ($respuesta['error'] ?? 'Error desconocido');
+            $error = "Error al guardar: " . $mensaje;
         }
+    } else {
+        header("Location: login.php?success=1");
+        exit;
     }
 }
 ?>

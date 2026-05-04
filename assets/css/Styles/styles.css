@@ -1,9 +1,62 @@
 :root {
-    --hero-overlay: rgba(0, 0, 0, 0.58);
-    --primary-color: #0d6efd;
+    /* Tu nueva paleta */
+    --azul-oscuro: #192C76;
+    --azul-claro: #93DAFE;
+    --naranja: #FF7403;
+    --blanco: #FFFFFF;
+
+    /* Tus variables originales adaptadas */
+    --hero-overlay: rgba(25, 44, 118, 0.65); /* Usamos tu azul oscuro con opacidad para el hero */
+    --primary-color: var(--naranja); /* Hacemos que el color primario sea el naranja */
     --text-muted: #6c757d;
 }
 
+/* =========================================
+   NUEVAS CLASES (Para el header y el index)
+========================================= */
+.bg-azul-oscuro { background-color: var(--azul-oscuro) !important; }
+.bg-azul-claro { background-color: var(--azul-claro) !important; }
+.fondo-suave { background-color: rgba(147, 218, 254, 0.15) !important; }
+.text-naranja { color: var(--naranja) !important; }
+.text-azul-claro { color: var(--azul-claro) !important; }
+.text-azul-oscuro { color: var(--azul-oscuro) !important; }
+.titulo-oscuro { color: var(--azul-oscuro) !important; }
+
+.btn-naranja {
+    background-color: var(--naranja) !important;
+    border-color: var(--naranja) !important;
+    color: var(--blanco) !important;
+    transition: all 0.2s;
+}
+.btn-naranja:hover {
+    background-color: #e66800 !important;
+    border-color: #e66800 !important;
+    color: var(--blanco) !important;
+}
+
+.btn-outline-naranja {
+    color: var(--naranja) !important;
+    border-color: var(--naranja) !important;
+    background-color: transparent !important;
+}
+.btn-outline-naranja:hover {
+    background-color: var(--naranja) !important;
+    color: var(--blanco) !important;
+}
+
+.nav-link-custom { 
+    color: #f8f9fa; 
+    font-weight: 500; 
+    transition: color 0.2s; 
+    font-size: 1.05rem; 
+}
+.nav-link-custom:hover { 
+    color: var(--azul-claro) !important; 
+}
+
+/* =========================================
+   TU CSS ORIGINAL (Intacto pero con nuevos colores)
+========================================= */
 body {
     background-color: #f8f9fa;
 }
@@ -30,7 +83,7 @@ body {
 
 .feature-icon {
     font-size: 2rem;
-    color: var(--primary-color);
+    color: var(--primary-color); /* Ahora tomará el naranja automáticamente */
 }
 
 .section-title {
@@ -51,7 +104,7 @@ body {
 }
 
 .hero-text {
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(25, 44, 118, 0.8); /* Ajustado al azul oscuro en vez de negro */
     border-radius: 10px;
     padding: 20px;
 }
@@ -64,11 +117,13 @@ body {
 
 .card-hover {
     transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 1px solid transparent;
 }
 
 .card-hover:hover {
     transform: translateY(-6px);
-    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.12);
+    box-shadow: 0 0.75rem 1.5rem rgba(25, 44, 118, 0.15); /* Sombra en azul oscuro */
+    border-color: var(--azul-claro); /* Detalle azul claro al hacer hover */
 }
 
 .card-product {
@@ -78,7 +133,7 @@ body {
 
 .card-product:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 20px rgba(25, 44, 118, 0.12); /* Sombra en azul oscuro */
 }
 
 .hover-scale {
@@ -106,6 +161,8 @@ body {
 
 .price {
     font-size: 1.15rem;
+    color: var(--naranja); /* Forzamos el naranja para el precio como pediste */
+    font-weight: bold;
 }
 
 .filter-sidebar {
@@ -116,13 +173,14 @@ body {
 }
 
 #botones-filtro .btn-outline-secondary:hover {
-    background-color: #495057 !important;
+    background-color: var(--azul-oscuro) !important;
     color: #ffffff !important;
-    border-color: #495057 !important;
+    border-color: var(--azul-oscuro) !important;
 }
 
 #botones-filtro .btn-primary.active {
     background-color: var(--primary-color) !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+    box-shadow: 0 4px 8px rgba(255, 116, 3, 0.3); /* Sombra naranja */
+    border-color: var(--primary-color) !important;
 }

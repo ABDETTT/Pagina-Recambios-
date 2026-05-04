@@ -1,17 +1,16 @@
 <?php
 session_start();
-require '../includes/db.php';
+require 'supabase_api.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['id_producto'])) {
-    header("Location: /RecambiosPro/index.php");
+    header("Location: index.php");
     exit;
 }
 
 $id_producto = (int)$_POST['id_producto'];
 
-$stmt = $pdo->prepare("SELECT id, nombre, precio, stock FROM productos WHERE id = ?");
-$stmt->execute([$id_producto]);
-$producto = $stmt->fetch();
+$respuesta = consultaSupabase("productos?id=eq.$id_producto&select=id,nombre,precio,stock");
+$producto = (is_array($respuesta) && !empty($respuesta) && !isset($respuesta['error'])) ? $respuesta[0] : null;
 
 if ($producto && $producto['stock'] >= 1) {
     $_SESSION['carrito'] ??= [];
@@ -29,5 +28,5 @@ if ($producto && $producto['stock'] >= 1) {
     }
 }
 
-header("Location: /RecambiosPro/index.php?agregado=1");
+header("Location: index.php?agregado=1");
 exit;

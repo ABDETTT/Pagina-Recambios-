@@ -1,77 +1,88 @@
 <?php
 session_start();
-require 'includes/db.php';  
+require 'supabase_api.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nombre = trim($_POST['nombre']);
+    $apellido = trim($_POST['apellido']);
+    $email = trim($_POST['email']);
+    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
+    
+    $rol_id = 2;
 
-    try {
-        
-        $sql = "SELECT p.*, r.nombre as nombre_rol 
-                FROM perfiles p 
-                INNER JOIN roles r ON p.rol_id = r.id 
-                WHERE p.email = :email LIMIT 1";
-        
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(['email' => $email]);
-        $user = $stmt->fetch();
+    $nuevoUsuario = [
+        'nombre'   => $nombre,
+        'apellido' => $apellido,
+        'email'    => $email,
+        'password' => $password,
+        'rol_id'   => $rol_id
+    ];
 
-        
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['usuario_id'] = $user['id'];
-            $_SESSION['usuario_nombre'] = $user['nombre'];
-            
-            
-            $_SESSION['es_admin'] = ($user['nombre_rol'] === 'admin');
+    $url = $supabaseUrl . "/rest/v1/perfiles";
+    $ch = curl_init($url);
+    $headers = [
+        "apikey: " . $supabaseKey,
+        "Authorization: Bearer " . $supabaseKey,
+        "Content-Type: application/json",
+        "Prefer: return=representation"
+    ];
 
-            header("Location: index.php");
-            exit;
-        } else {
-            $error = "Email o contraseña incorrectos.";
-        }
-    } catch (PDOException $e) {
-        $error = "Error: " . $e->getMessage();
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($nuevoUsuario));
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode >= 200 && $httpCode < 300) {
+        header("Location: login.php?success=1");
+        exit;
+    } else {
+        $error = "Error al registrar el usuario. Inténtalo de nuevo.";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar Sesión | RecambiosPro</title>
+    <title>Registro | RecambiosPro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body class="bg-light d-flex align-items-center vh-100">
-    <div class="container" style="max-width: 400px;">
-        <div class="card shadow border-0 p-4 text-center">
-            <h2 class="mb-4 text-primary fw-bold"><i class="bi bi-person-lock"></i> Acceso</h2>
+    <div class="container" style="max-width: 450px;">
+        <div class="card shadow border-0 p-4">
+            <h2 class="text-center mb-4 fw-bold text-primary">Crear Cuenta</h2>
             
-            <?php if(isset($_GET['success'])): ?>
-                <div class="alert alert-success small">¡Registro completado! Ya puedes entrar.</div>
-            <?php endif; ?>
-
-            <?php if(isset($error)): ?>
+            <?php if (isset($error)): ?>
                 <div class="alert alert-danger small"><?php echo $error; ?></div>
             <?php endif; ?>
 
             <form method="POST">
-                <div class="mb-3 text-start">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold">Nombre</label>
+                        <input type="text" name="nombre" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold">Apellido</label>
+                        <input type="text" name="apellido" class="form-control" required>
+                    </div>
+                </div>
+                <div class="mb-3">
                     <label class="form-label small fw-bold">Email</label>
-                    <input type="email" name="email" class="form-control" placeholder="nombre@ejemplo.com" required>
+                    <input type="email" name="email" class="form-control" required>
                 </div>
-                <div class="mb-3 text-start">
+                <div class="mb-3">
                     <label class="form-label small fw-bold">Contraseña</label>
-                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                    <input type="password" name="password" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 fw-bold py-2">Entrar</button>
+                <button type="submit" class="btn btn-primary w-100 fw-bold">Registrarse</button>
             </form>
-            
-            <div class="mt-3">
-                <span class="small text-muted">¿No tienes cuenta?</span> 
-                <a href="registro.php" class="small text-decoration-none">Regístrate aquí</a>
+            <div class="text-center mt-3">
+                <a href="login.php" class="small text-decoration-none">¿Ya tienes cuenta? Inicia sesión</a>
             </div>
         </div>
     </div>

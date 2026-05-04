@@ -1,7 +1,7 @@
 <?php
 $pagina_titulo = "Video Tutoriales | RecambiosPro";
-require '../includes/db.php';
-include '../includes/header.php';
+require 'db.php';
+include 'header.php';
 
 $tutoriales = [
     [

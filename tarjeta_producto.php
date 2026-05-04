@@ -1,17 +1,18 @@
-<?php 
-$foto = !empty($p['imagen']) ? '../assets/img/productos/' . $p['imagen'] : '../assets/img/productos/placeholder.png';
-
-$relacionados = [];
-if (!empty($p['categoria_id'])) {
-    try {
-        $stmt_rel = $pdo->prepare("SELECT id, nombre, precio, imagen FROM productos WHERE categoria_id = :cid AND id != :pid ORDER BY id DESC LIMIT 3");
-        $stmt_rel->execute(['cid' => $p['categoria_id'], 'pid' => $p['id']]);
-        $relacionados = $stmt_rel->fetchAll();
-    } catch (PDOException $e) {
-        $relacionados = [];
-    }
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
+
+$es_admin = (
+    (isset($_SESSION['es_admin']) && $_SESSION['es_admin'] === true) ||
+    (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin')
+);
+
+$foto = !empty($p['imagen']) ? 'img/productos/' . $p['imagen'] : 'img/productos/placeholder.png';
+
+$relacionados = []; 
 ?>
+
 <div class="col-md-4">
   <div class="card h-100 card-product shadow-sm">
     <div class="cursor-pointer position-relative" data-bs-toggle="modal" data-bs-target="#modalProducto<?php echo $p['id']; ?>">
@@ -26,12 +27,20 @@ if (!empty($p['categoria_id'])) {
           <?php echo htmlspecialchars($p['nombre']); ?>
       </h6>
       <p class="text-primary fw-bold fs-5 mb-3"><?php echo number_format($p['precio'], 2); ?> €</p>
-      <form action="/RecambiosPro/actions/agregar_carrito.php" method="POST" class="mt-auto">
+      
+      <form action="agregar_carrito.php" method="POST" class="mt-auto">
         <input type="hidden" name="id_producto" value="<?php echo $p['id']; ?>">
         <button type="submit" class="btn btn-primary w-100 btn-sm fw-bold rounded-pill" <?php echo (($p['stock'] ?? 0) <= 0) ? 'disabled' : ''; ?>>
             <i class="bi bi-cart-plus me-1"></i> Añadir
         </button>
       </form>
+
+      <?php if ($es_admin): ?>
+          <div class="d-flex gap-2 mt-2 w-100">
+              <a href="editar_producto.php?id=<?php echo $p['id']; ?>" class="btn btn-warning w-50 btn-sm fw-bold rounded-pill">Editar</a>
+              <a href="eliminar_producto.php?id=<?php echo $p['id']; ?>" class="btn btn-danger w-50 btn-sm fw-bold rounded-pill" onclick="return confirm('¿Seguro que deseas eliminar este producto?');">Borrar</a>
+          </div>
+      <?php endif; ?>
     </div>
   </div>
 </div>
@@ -66,31 +75,13 @@ if (!empty($p['categoria_id'])) {
                         <?php endif; ?>
                     </div>
                     
-                    <form action="/RecambiosPro/actions/agregar_carrito.php" method="POST" class="d-flex gap-2 mb-4">
+                    <form action="agregar_carrito.php" method="POST" class="d-flex gap-2 mb-4">
                         <input type="hidden" name="id_producto" value="<?php echo $p['id']; ?>">
                         <button type="submit" class="btn btn-primary btn-lg flex-grow-1 fw-bold rounded-pill shadow-sm" <?php echo (($p['stock'] ?? 0) <= 0) ? 'disabled' : ''; ?>>
                             <i class="bi bi-cart-plus me-2"></i> Añadir al carrito
                         </button>
                     </form>
                 </div>
-
-                <?php if(count($relacionados) > 0): ?>
-                <div class="mt-auto pt-3 border-top">
-                    <h6 class="fw-bold mb-3 text-uppercase small text-muted"><i class="bi bi-stars text-warning me-1"></i> También te puede interesar</h6>
-                    <div class="row g-2">
-                        <?php foreach($relacionados as $rel): ?>
-                            <?php $foto_rel = !empty($rel['imagen']) ? '../assets/img/productos/' . $rel['imagen'] : '../assets/img/productos/placeholder.png'; ?>
-                            <div class="col-4 text-center">
-                                <a href="catalogo.php?s=<?php echo urlencode($rel['nombre']); ?>" class="text-decoration-none text-dark d-block hover-scale">
-                                    <img src="<?php echo $foto_rel; ?>" class="img-fluid rounded border mb-2 w-100" style="height: 60px; object-fit: cover;" alt="<?php echo htmlspecialchars($rel['nombre']); ?>" onerror="this.src='https://placehold.co/100x100?text=Img'">
-                                    <p class="small mb-0 text-truncate fw-medium" style="font-size: 0.75rem;"><?php echo htmlspecialchars($rel['nombre']); ?></p>
-                                    <span class="fw-bold text-primary" style="font-size: 0.8rem;"><?php echo number_format($rel['precio'], 2); ?> €</span>
-                                </a>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <?php endif; ?>
             </div>
          </div>
       </div>

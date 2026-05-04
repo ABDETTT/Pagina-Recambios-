@@ -1,7 +1,10 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $pagina_titulo = "Catálogo | RecambiosPro";
-require '../includes/db.php'; 
-include '../includes/header.php'; 
+require 'supabase_api.php'; 
+include 'header.php'; 
 
 $cat_filtro = isset($_GET['categoria']) ? (int)$_GET['categoria'] : null;
 $busqueda = isset($_GET['s']) ? trim($_GET['s']) : '';
@@ -9,40 +12,28 @@ $pagina = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 $por_pagina = 9; 
 $offset = ($pagina - 1) * $por_pagina;
 
-try {
-    $conditions = [];
-    $params = [];
+$endpoint = "productos?select=*,categorias(nombre)&order=id.desc&limit=$por_pagina&offset=$offset";
 
-    if ($cat_filtro) {
-        $conditions[] = "p.categoria_id = :cat_id";
-        $params['cat_id'] = $cat_filtro;
-    }
-    if ($busqueda) {
-        $conditions[] = "(p.nombre LIKE :s OR p.descripcion LIKE :s)";
-        $params['s'] = "%$busqueda%";
-    }
-
-    $where_sql = $conditions ? "WHERE " . implode(" AND ", $conditions) : "";
-    $sql = "SELECT p.*, c.nombre as cat_nombre 
-            FROM productos p 
-            LEFT JOIN categorias c ON p.categoria_id = c.id 
-            $where_sql 
-            ORDER BY p.id DESC LIMIT :limit OFFSET :offset";
-
-    $stmt = $pdo->prepare($sql);
-    foreach ($params as $key => $val) {
-        $stmt->bindValue($key, $val);
-    }
-    $stmt->bindValue(':limit', $por_pagina, PDO::PARAM_INT);
-    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-    $stmt->execute();
-    
-    $productos = $stmt->fetchAll();
-    $categorias = $pdo->query("SELECT * FROM categorias ORDER BY nombre ASC")->fetchAll();
-
-} catch (PDOException $e) {
-    die("Error en la consulta: " . $e->getMessage());
+if ($cat_filtro) {
+    $endpoint .= "&categoria_id=eq.$cat_filtro";
 }
+if ($busqueda) {
+    $s = urlencode("%{$busqueda}%");
+    $endpoint .= "&or=(nombre.ilike.$s,descripcion.ilike.$s)";
+}
+
+$respuesta_productos = consultaSupabase($endpoint);
+$productos = [];
+
+if (is_array($respuesta_productos) && !isset($respuesta_productos['error'])) {
+    foreach ($respuesta_productos as $item) {
+        $item['cat_nombre'] = $item['categorias']['nombre'] ?? 'Desconocida';
+        $productos[] = $item;
+    }
+}
+
+$respuesta_categorias = consultaSupabase("categorias?select=*&order=nombre.asc");
+$categorias = (is_array($respuesta_categorias) && !isset($respuesta_categorias['error'])) ? $respuesta_categorias : [];
 ?>
 <div class="container py-5">
   <div class="row">
@@ -54,7 +45,7 @@ try {
           <a href="catalogo.php" class="list-group-item list-group-item-action <?php echo !$cat_filtro ? 'active fw-bold' : ''; ?>">Todas</a>
           <?php foreach ($categorias as $cat): ?>
             <a href="catalogo.php?categoria=<?php echo $cat['id']; ?>" 
-               class="list-group-item list-group-item-action <?php echo $cat_filtro == $cat['id'] ? 'active fw-bold' : ''; ?>">
+              class="list-group-item list-group-item-action <?php echo $cat_filtro == $cat['id'] ? 'active fw-bold' : ''; ?>">
               <?php echo htmlspecialchars($cat['nombre']); ?>
             </a>
           <?php endforeach; ?>
@@ -79,7 +70,7 @@ try {
       <div class="row g-4">
         <?php if (count($productos) > 0): ?>
           <?php foreach ($productos as $p): ?>
-             <?php include '../includes/tarjeta_producto.php'; ?>
+            <?php include 'tarjeta_producto.php'; ?>
           <?php endforeach; ?>
         <?php else: ?>
           <div class="text-center py-5">
@@ -105,4 +96,4 @@ try {
   </div>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<?php include 'footer.php'; ?>
