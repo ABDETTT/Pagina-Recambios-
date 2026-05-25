@@ -1,46 +1,34 @@
 <?php
-session_start();
-require 'supabase_api.php';
-
+if (session_status() === PHP_SESSION_NONE) session_start();
+require_once 'includes/supabase_api.php';
+if (isset($_SESSION['usuario_id'])) {
+    header("Location: index.php");
+    exit;
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nombre = trim($_POST['nombre']);
-    $apellido = trim($_POST['apellido']);
-    $email = trim($_POST['email']);
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
-    
-    $rol_id = 2;
-
-    $nuevoUsuario = [
-        'nombre'   => $nombre,
-        'apellido' => $apellido,
-        'email'    => $email,
-        'password' => $password,
-        'rol_id'   => $rol_id
-    ];
-
-    $url = $supabaseUrl . "/rest/v1/perfiles";
-    $ch = curl_init($url);
-    $headers = [
-        "apikey: " . $supabaseKey,
-        "Authorization: Bearer " . $supabaseKey,
-        "Content-Type: application/json",
-        "Prefer: return=representation"
-    ];
-
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($nuevoUsuario));
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($httpCode >= 200 && $httpCode < 300) {
-        header("Location: login.php?success=1");
-        exit;
+    $email = trim($_POST['email'] ?? '');
+    $password_ingresada = $_POST['password'] ?? '';
+    if (empty($email) || empty($password_ingresada)) {
+        $error = "Por favor, completa todos los campos.";
     } else {
-        $error = "Error al registrar el usuario. Inténtalo de nuevo.";
+        $endpoint = "perfiles?email=eq." . urlencode($email) . "&select=*";
+        $respuesta = consultaSupabase($endpoint);
+        if (!empty($respuesta) && !isset($respuesta['error'])) {
+            $usuario = $respuesta[0]; 
+            if (password_verify($password_ingresada, $usuario['password'])) {
+                $_SESSION['usuario_id'] = $usuario['id'];
+                $_SESSION['nombre'] = $usuario['nombre'];
+                $_SESSION['apellido'] = $usuario['apellido'];
+                $_SESSION['email'] = $usuario['email'];
+                $_SESSION['es_admin'] = ($usuario['rol_id'] == 1);
+                header("Location: index.php");
+                exit;
+            } else {
+                $error = "Credenciales incorrectas.";
+            }
+        } else {
+            $error = "Credenciales incorrectas.";
+        }
     }
 }
 ?>
@@ -48,41 +36,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Registro | RecambiosPro</title>
+    <title>Iniciar Sesión | AutoStock</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light d-flex align-items-center vh-100">
-    <div class="container" style="max-width: 450px;">
+    <div class="container" style="max-width: 400px;">
+        <div class="text-center mb-3">
+            <a href="index.php">
+                <img src="assets/img/logo.svg" alt="AutoStock" style="height:64px;width:auto;">
+            </a>
+        </div>
         <div class="card shadow border-0 p-4">
-            <h2 class="text-center mb-4 fw-bold text-primary">Crear Cuenta</h2>
-            
-            <?php if (isset($error)): ?>
-                <div class="alert alert-danger small"><?php echo $error; ?></div>
+            <h2 class="text-center mb-4 fw-bold titulo-oscuro">Iniciar Sesión</h2>
+            <?php if (isset($_GET['success'])): ?>
+                <div class="alert alert-success small">¡Registro completado! Ya puedes iniciar sesión.</div>
             <?php endif; ?>
-
-            <form method="POST">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-bold">Nombre</label>
-                        <input type="text" name="nombre" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-bold">Apellido</label>
-                        <input type="text" name="apellido" class="form-control" required>
-                    </div>
-                </div>
+            <?php if (isset($error)): ?>
+                <div class="alert alert-danger small"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
+            <form method="POST" action="login.php">
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Email</label>
                     <input type="email" name="email" class="form-control" required>
                 </div>
-                <div class="mb-3">
+                <div class="mb-1">
                     <label class="form-label small fw-bold">Contraseña</label>
                     <input type="password" name="password" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 fw-bold">Registrarse</button>
+                <div class="text-end mb-4">
+                    <a href="recuperar_password.php" class="small text-decoration-none" style="color:var(--naranja,#FF7403);">¿Olvidaste tu contraseña?</a>
+                </div>
+                <button type="submit" class="btn btn-naranja w-100 fw-bold">Entrar</button>
             </form>
             <div class="text-center mt-3">
-                <a href="login.php" class="small text-decoration-none">¿Ya tienes cuenta? Inicia sesión</a>
+                <a href="registro.php" class="small text-decoration-none">¿No tienes cuenta? Regístrate aquí</a>
             </div>
         </div>
     </div>

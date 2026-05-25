@@ -1,32 +1,78 @@
 <?php
-$pagina_titulo = "Contacto | RecambiosPro";
-require 'supabase_api.php'; 
-include 'header.php';
-
+if (session_status() === PHP_SESSION_NONE) session_start();
+$pagina_titulo = "Contacto | AutoStock";
+require_once 'includes/supabase_api.php'; 
 $mensaje_enviado = false;
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $mensaje_enviado = true;
+$error_form = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nombre = trim($_POST['nombre'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $asunto = trim($_POST['asunto'] ?? '');
+    $mensaje = trim($_POST['mensaje'] ?? '');
+    if (empty($nombre) || empty($email) || empty($asunto) || empty($mensaje)) {
+        $error_form = "Por favor, completa todos los campos del formulario.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error_form = "Por favor, introduce un correo electrónico válido.";
+    } else {
+        $fecha = date('Y-m-d H:i:s');
+        $datos_contacto = [
+            'nombre'  => $nombre,
+            'email'   => $email,
+            'asunto'  => $asunto,
+            'mensaje' => $mensaje,
+            'fecha'   => $fecha,
+            'leido'   => false
+        ];
+        $respuesta = consultaSupabase('mensajes_contacto', 'POST', [$datos_contacto]);
+        if (isset($respuesta['error']) || (isset($respuesta['http_code']) && $respuesta['http_code'] >= 400)) {
+            $dir = __DIR__ . '/data';
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+            $file_path = $dir . '/mensajes_contacto.json';
+            $mensajes_locales = [];
+            if (file_exists($file_path)) {
+                $content = file_get_contents($file_path);
+                $mensajes_locales = json_decode($content, true) ?: [];
+            }
+            $nuevo_mensaje = [
+                'id'      => time(),
+                'nombre'  => $nombre,
+                'email'   => $email,
+                'asunto'  => $asunto,
+                'mensaje' => $mensaje,
+                'fecha'   => $fecha,
+                'leido'   => false
+            ];
+            $mensajes_locales[] = $nuevo_mensaje;
+            file_put_contents($file_path, json_encode($mensajes_locales, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        }
+        $mensaje_enviado = true;
+    }
 }
+include_once 'includes/header.php';
 ?>
-
 <main class="container py-5">
     <div class="text-center mb-5">
-        <h1 class="display-5 fw-bold text-primary">¿Necesitas ayuda?</h1>
+        <h1 class="display-5 fw-bold titulo-oscuro">¿Necesitas ayuda?</h1>
         <p class="lead text-muted">Estamos aquí para asesorarte con las piezas de tu vehículo.</p>
     </div>
-
     <div class="row g-5">
         <div class="col-lg-7">
             <div class="card shadow-sm border-0 p-4 p-md-5">
                 <h3 class="fw-bold mb-4">Envíanos un mensaje</h3>
-                
                 <?php if ($mensaje_enviado): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 12px;">
                         <i class="bi bi-check-circle-fill me-2"></i> ¡Gracias por contactarnos! Hemos recibido tu mensaje y te responderemos pronto.
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
-
+                <?php if ($error_form): ?>
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 12px;">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> <?= htmlspecialchars($error_form) ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
                 <form method="POST" action="contacto.php">
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -52,17 +98,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <label class="form-label fw-bold">Mensaje</label>
                         <textarea name="mensaje" class="form-control" rows="5" placeholder="¿En qué podemos ayudarte?" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold rounded-pill">
+                    <button type="submit" class="btn btn-naranja btn-lg w-100 fw-bold rounded-pill">
                         <i class="bi bi-send me-2"></i> Enviar Mensaje
                     </button>
                 </form>
             </div>
         </div>
-
         <div class="col-lg-5">
-            <div class="card shadow-sm border-0 bg-primary text-white p-4 p-md-5 h-100">
+            <div class="card shadow-sm border-0 bg-azul-oscuro text-white p-4 p-md-5 h-100">
                 <h3 class="fw-bold mb-4">Información de Contacto</h3>
-                
                 <div class="d-flex align-items-start mb-4">
                     <i class="bi bi-geo-alt fs-2 me-3 text-warning"></i>
                     <div>
@@ -70,7 +114,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <p class="mb-0 text-white-50">Polígono Industrial Almoradi<br>Calle Municipal, Nave 12<br>03160 Almoradi, España</p>
                     </div>
                 </div>
-
                 <div class="d-flex align-items-start mb-4">
                     <i class="bi bi-telephone fs-2 me-3 text-warning"></i>
                     <div>
@@ -78,17 +121,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <p class="mb-0 text-white-50">+34 900 123 456<br>Lunes a Viernes: 9:00 - 18:00</p>
                     </div>
                 </div>
-
                 <div class="d-flex align-items-start mb-4">
                     <i class="bi bi-envelope fs-2 me-3 text-warning"></i>
                     <div>
                         <h5 class="fw-bold mb-1">Email</h5>
-                        <p class="mb-0 text-white-50">soporte@recambiospro.com</p>
+                        <p class="mb-0 text-white-50">soporte@autostock.com</p>
                     </div>
                 </div>
-
                 <hr class="border-light opacity-25 my-4">
-
                 <h5 class="fw-bold mb-3">Síguenos</h5>
                 <div class="d-flex gap-3">
                     <a href="#" class="btn btn-outline-light rounded-circle"><i class="bi bi-facebook"></i></a>
@@ -99,5 +139,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 </main>
-
-<?php include 'footer.php'; ?>
+<?php include_once 'includes/footer.php'; ?>
