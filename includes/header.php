@@ -30,7 +30,7 @@ if (basename(dirname($_SERVER['PHP_SELF'])) === 'admin') {
     <nav class="navbar navbar-expand-lg navbar-dark bg-azul-oscuro sticky-top shadow-sm py-3" style="border-bottom: 3px solid var(--naranja);">
       <div class="container align-items-center">
         <a class="navbar-brand fw-bold fs-4 d-flex align-items-center text-white" href="<?= $path_prefix ?>index.php">
-          <img src="<?= $path_prefix ?>assets/img/logo.svg" alt="AutoStock" class="me-2" style="height: 52px; width: auto;">
+          <img src="<?= $path_prefix ?>assets/img/logo.svg" alt="AutoStock" class="me-2 logo-anim" style="height: 52px; width: auto;">
           Auto<span class="text-azul-claro">Stock</span>
         </a>
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

@@ -5,11 +5,11 @@ $es_admin = (
 );
 $foto = !empty($p['imagen_url']) ? $p['imagen_url'] : (!empty($p['imagen']) ? 'img/productos/' . $p['imagen'] : 'img/productos/placeholder.png');
 ?>
-<article class="col-md-4 anim fade-up">
+<article class="col-6 col-md-4 anim fade-up">
   <div class="card h-100 card-product shadow-sm">
     <div class="cursor-pointer position-relative card-img-wrap" data-bs-toggle="modal" data-bs-target="#modalProducto<?= $p['id'] ?>">
-      <div class="bg-light text-center border-bottom d-flex align-items-center justify-content-center" style="height: 180px; overflow:hidden;">
-          <img src="<?= htmlspecialchars($foto) ?>" class="img-fluid w-100 h-100" style="object-fit: cover;" alt="<?= htmlspecialchars($p['nombre']) ?>" onerror="this.src='https://placehold.co/400x300?text=Sin+Imagen'">
+      <div class="text-center border-bottom d-flex align-items-center justify-content-center" style="height: 180px; overflow:hidden; background:#fff;">
+          <img src="<?= htmlspecialchars($foto) ?>" class="product-img-contain" alt="<?= htmlspecialchars($p['nombre']) ?>" onerror="this.src='https://placehold.co/400x300?text=Sin+Imagen'">
       </div>
     </div>
     <div class="card-body d-flex flex-column">
@@ -46,7 +46,7 @@ $foto = !empty($p['imagen_url']) ? $p['imagen_url'] : (!empty($p['imagen']) ? 'i
       <div class="modal-body p-4 p-md-5 pt-0">
          <div class="row g-4 align-items-center">
             <div class="col-md-6 text-center">
-                <img src="<?= htmlspecialchars($foto) ?>" class="img-fluid rounded-3 shadow-sm w-100" style="object-fit: cover; max-height: 350px;" alt="<?= htmlspecialchars($p['nombre']) ?>" onerror="this.src='https://placehold.co/400x300?text=Sin+Imagen'">
+                <img src="<?= htmlspecialchars($foto) ?>" class="img-fluid rounded-3 shadow-sm w-100" style="object-fit: contain; max-height: 350px; background:#fff;" alt="<?= htmlspecialchars($p['nombre']) ?>" onerror="this.src='https://placehold.co/400x300?text=Sin+Imagen'">
             </div>
             <div class="col-md-6 d-flex flex-column h-100">
                 <div>

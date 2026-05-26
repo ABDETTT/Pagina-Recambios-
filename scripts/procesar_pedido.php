@@ -63,12 +63,24 @@ if ($email_cliente) {
             'precio'   => $item['precio'],
         ];
     }
+    
+    $destinatario = $_POST['destinatario'] ?? '';
+    $calle = $_POST['calle'] ?? '';
+    $cp = $_POST['codigo_postal'] ?? '';
+    $ciudad = $_POST['ciudad'] ?? '';
+    $provincia = $_POST['provincia'] ?? '';
+    $telefono = $_POST['telefono'] ?? '';
+    
+    $direccion_completa = trim("$destinatario, $calle, $cp $ciudad ($provincia) - Tel: $telefono", ", -");
+    if ($direccion_completa === "Tel:") $direccion_completa = "";
+
     $cuerpo_email = emailPlantillaConfirmacionPedido(
         htmlspecialchars($nombre_cliente),
         $pedido_id,
         $total,
         $items_email,
-        $forma_pago
+        $forma_pago,
+        $direccion_completa
     );
     enviarEmail($email_cliente, "Confirmación de pedido #$pedido_id — AutoStock", $cuerpo_email);
 }

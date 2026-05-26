@@ -95,6 +95,13 @@ $url_params = !empty($params_filtro) ? '&' . http_build_query($params_filtro) : 
 
   <div class="row">
     <aside class="col-lg-3 mb-4">
+      <button class="btn btn-azul-oscuro w-100 mb-3 d-flex d-lg-none align-items-center justify-content-between fw-bold rounded-3 px-3 py-2"
+              style="background:var(--azul-oscuro);color:#fff;border:none;"
+              data-bs-toggle="collapse" data-bs-target="#filtros-sidebar" aria-expanded="false">
+          <span><i class="ph ph-funnel me-2"></i>Filtros y Categorías</span>
+          <i class="ph ph-caret-down"></i>
+      </button>
+      <div id="filtros-sidebar" class="collapse d-lg-block">
       <div class="filter-sidebar shadow-sm p-3 bg-white rounded mb-4">
         <h5 class="fw-bold mb-3">Filtro por Vehículo</h5>
         <div class="mb-3">
@@ -140,6 +147,7 @@ $url_params = !empty($params_filtro) ? '&' . http_build_query($params_filtro) : 
           <?php endforeach; ?>
         </div>
       </div>
+      </div><!-- /filtros-sidebar collapse -->
     </aside>
     <main class="col-lg-9">
       <?php if ($filtrar_por_sesion): ?>

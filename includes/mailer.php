@@ -13,12 +13,12 @@ function enviarEmail(string $para, string $asunto, string $cuerpo_html): bool {
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
-        $mail->Host = 'sandbox.smtp.mailtrap.io';
+        $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'TU_USUARIO_MAILTRAP';
-        $mail->Password = 'TU_CONTRASEÑA_MAILTRAP';
+        $mail->Username = 'TU_CORREO@gmail.com'; // Sustituye por tu correo de Gmail
+        $mail->Password = 'TU_CONTRASEÑA_DE_APLICACION'; // Sustituye por tu contraseña de aplicación de 16 dígitos
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 2525;
+        $mail->Port = 587;
         $mail->setFrom(MAIL_FROM, MAIL_FROM_NAME);
         $mail->addAddress($para);
         $mail->addReplyTo(MAIL_REPLY_TO, 'Soporte AutoStock');
@@ -118,7 +118,7 @@ function emailPlantillaRecuperarPassword(string $nombre, string $link): string {
 HTML;
     return emailLayout($contenido);
 }
-function emailPlantillaConfirmacionPedido(string $nombre, int $pedido_id, float $total, array $items, string $forma_pago): string {
+function emailPlantillaConfirmacionPedido(string $nombre, int $pedido_id, float $total, array $items, string $forma_pago, string $direccion_envio = ''): string {
     $filas = '';
     foreach ($items as $item) {
         $subtotal = number_format($item['precio'] * $item['cantidad'], 2, ',', '.');
@@ -134,13 +134,16 @@ function emailPlantillaConfirmacionPedido(string $nombre, int $pedido_id, float 
     $base_fmt   = number_format($total / 1.21, 2, ',', '.');
     $iva_fmt    = number_format($total - ($total / 1.21), 2, ',', '.');
     $panel_url  = SITE_URL . '/panel_cliente.php';
+    
+    $direccion_html = $direccion_envio ? "<br>🏠 Dirección de envío: " . htmlspecialchars($direccion_envio) : "";
+
     $contenido = <<<HTML
     <span class="success-icon">🎉</span>
     <h2>¡Pedido confirmado!</h2>
     <p>Hola <strong>$nombre</strong>, hemos recibido tu pedido correctamente. Lo tendrás listo en breve.</p>
     <div class="info-box">
       📦 <strong>Número de pedido: #$pedido_id</strong><br>
-      💳 Forma de pago: $forma_pago
+      💳 Forma de pago: $forma_pago$direccion_html
     </div>
     <table class="order-items">
       <thead>

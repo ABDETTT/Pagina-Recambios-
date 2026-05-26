@@ -1,1 +1,20 @@
-[]
+[
+    {
+        "id": 1779808295,
+        "nombre": "abde",
+        "email": "abde@gmail.codmf",
+        "asunto": "Duda sobre pieza",
+        "mensaje": "Hola buenas",
+        "fecha": "2026-05-26 15:11:35",
+        "leido": true
+    },
+    {
+        "id": 1779811811,
+        "nombre": "abde",
+        "email": "abde@gmail.codmf",
+        "asunto": "Duda sobre pieza",
+        "mensaje": "Hola",
+        "fecha": "2026-05-26 16:10:11",
+        "leido": true
+    }
+]

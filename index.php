@@ -47,7 +47,7 @@ endforeach;
       <div class="card p-2 mx-auto shadow-lg border-0 hero-search" style="max-width: 650px; background: rgba(255,255,255,0.95); border-radius: 50px;">
         <form action="catalogo.php" method="GET" class="d-flex gap-2">
           <input class="form-control border-0 bg-transparent px-4 shadow-none" type="search" name="s" placeholder="Ej: Pastillas de freno, filtro de aceite..." required style="border-radius: 50px;">
-          <button class="btn btn-naranja px-4 fw-bold rounded-pill" type="submit" style="min-width: 120px;"><i class="ph ph-magnifying-glass me-2"></i>Buscar</button>
+          <button class="btn btn-naranja px-4 fw-bold rounded-pill btn-buscar" type="submit"><i class="ph ph-magnifying-glass me-2"></i>Buscar</button>
         </form>
       </div>
     </div>
@@ -84,27 +84,27 @@ endforeach;
           <p class="text-muted">Encuentra rápidamente lo que tu coche necesita</p>
       </div>
       <div class="row g-4">
-        <article class="col-md-4 anim scale-in delay-1">
+        <article class="col-6 col-md-4 anim scale-in delay-1">
             <a href="catalogo.php?categoria=1" class="text-decoration-none">
-                <div class="card border-0 shadow-sm text-center py-5 card-hover fondo-suave text-azul-oscuro" style="border-radius: 20px;">
-                    <i class="ph ph-drop-half display-3 mb-3 text-naranja"></i>
-                    <h4 class="fw-bold mb-0">Aceites y Líquidos</h4>
+                <div class="card border-0 shadow-sm text-center py-4 py-md-5 card-hover fondo-suave text-azul-oscuro" style="border-radius: 20px;">
+                    <i class="ph ph-drop-half display-4 display-md-3 mb-2 mb-md-3 text-naranja"></i>
+                    <h5 class="h6 h4-md fw-bold mb-0">Aceites y Líquidos</h5>
                 </div>
             </a>
         </article>
-        <article class="col-md-4 anim scale-in delay-2">
+        <article class="col-6 col-md-4 anim scale-in delay-2">
             <a href="catalogo.php?categoria=2" class="text-decoration-none">
-                <div class="card border-0 shadow-sm text-center py-5 card-hover fondo-suave text-azul-oscuro" style="border-radius: 20px;">
-                    <i class="ph ph-disc display-3 mb-3 text-naranja"></i>
-                    <h4 class="fw-bold mb-0">Sistema de Frenos</h4>
+                <div class="card border-0 shadow-sm text-center py-4 py-md-5 card-hover fondo-suave text-azul-oscuro" style="border-radius: 20px;">
+                    <i class="ph ph-disc display-4 display-md-3 mb-2 mb-md-3 text-naranja"></i>
+                    <h5 class="h6 h4-md fw-bold mb-0">Sistema de Frenos</h5>
                 </div>
             </a>
         </article>
-        <article class="col-md-4 anim scale-in delay-3">
+        <article class="col-6 col-md-4 anim scale-in delay-3">
             <a href="catalogo.php?categoria=3" class="text-decoration-none">
-                <div class="card border-0 shadow-sm text-center py-5 card-hover fondo-suave text-azul-oscuro" style="border-radius: 20px;">
-                    <i class="ph ph-lightning display-3 mb-3 text-naranja"></i>
-                    <h4 class="fw-bold mb-0">Baterías y Eléctrico</h4>
+                <div class="card border-0 shadow-sm text-center py-4 py-md-5 card-hover fondo-suave text-azul-oscuro" style="border-radius: 20px;">
+                    <i class="ph ph-lightning display-4 display-md-3 mb-2 mb-md-3 text-naranja"></i>
+                    <h5 class="h6 h4-md fw-bold mb-0">Baterías y Eléctrico</h5>
                 </div>
             </a>
         </article>
