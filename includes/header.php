@@ -1,5 +1,6 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../includes/security.php';
+initSecureSession();
 $items_carrito = 0;
 $carrito_sesion = $_SESSION['carrito'] ?? [];
 foreach ($carrito_sesion as $item) {
@@ -20,8 +21,8 @@ if (basename(dirname($_SERVER['PHP_SELF'])) === 'admin') {
   <link rel="icon" type="image/svg+xml" href="<?= $path_prefix ?>assets/img/logo.svg">
   <link rel="shortcut icon" href="<?= $path_prefix ?>assets/img/logo.svg">
   <link href="<?= $path_prefix ?>assets/css/bootstrap/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="<?= $path_prefix ?>assets/css/Styles/styles.css">
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
+  <link rel="stylesheet" href="<?= $path_prefix ?>assets/css/styles.css">
   <link rel="stylesheet" href="<?= $path_prefix ?>assets/css/cookies.css">
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -53,27 +54,27 @@ if (basename(dirname($_SERVER['PHP_SELF'])) === 'admin') {
             <?php if (isset($_SESSION['usuario_id'])): ?>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle nav-link-custom d-flex align-items-center" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle fs-5 me-1 text-azul-claro"></i> <?= htmlspecialchars($_SESSION['nombre'] ?? 'Usuario') ?>
+                        <i class="ph ph-user-circle fs-5 me-1 text-azul-claro"></i> <?= htmlspecialchars($_SESSION['nombre'] ?? 'Usuario') ?>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3">
-                        <li><a class="dropdown-item py-2 fw-bold" href="<?= $path_prefix ?>panel_cliente.php"><i class="bi bi-person-badge me-2 text-azul-oscuro"></i> Panel de Cliente</a></li>
+                        <li><a class="dropdown-item py-2 fw-bold" href="<?= $path_prefix ?>panel_cliente.php"><i class="ph ph-identification-badge me-2 text-azul-oscuro"></i> Panel de Cliente</a></li>
                         <?php if (isset($_SESSION['es_admin']) && $_SESSION['es_admin'] === true): ?>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item py-2 fw-bold" href="<?= $path_prefix ?>admin/index.php"><i class="bi bi-shield-lock-fill me-2 text-naranja"></i> Panel de Administración</a></li>
+                            <li><a class="dropdown-item py-2 fw-bold" href="<?= $path_prefix ?>admin/index.php"><i class="ph-fill ph-shield-check me-2 text-naranja"></i> Panel de Administración</a></li>
                         <?php endif; ?>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item py-2 text-danger fw-bold" href="<?= $path_prefix ?>logout.php"><i class="bi bi-box-arrow-right me-2"></i> Salir</a></li>
+                        <li><a class="dropdown-item py-2 text-danger fw-bold" href="<?= $path_prefix ?>auth/logout.php"><i class="ph ph-sign-out me-2"></i> Salir</a></li>
                     </ul>
                 </li>
             <?php else: ?>
                 <li class="nav-item d-flex gap-2 w-100 justify-content-center mt-2 mt-lg-0">
-                    <a class="btn btn-outline-light btn-sm fw-bold rounded-pill px-3 py-2" href="<?= $path_prefix ?>login.php">Iniciar Sesión</a>
-                    <a class="btn btn-naranja btn-sm fw-bold rounded-pill px-3 py-2" href="<?= $path_prefix ?>registro.php">Registrarse</a>
+                    <a class="btn btn-outline-light btn-sm fw-bold rounded-pill px-3 py-2" href="<?= $path_prefix ?>auth/login.php">Iniciar Sesión</a>
+                    <a class="btn btn-naranja btn-sm fw-bold rounded-pill px-3 py-2" href="<?= $path_prefix ?>auth/registro.php">Registrarse</a>
                 </li>
             <?php endif; ?>
             <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
                 <a class="btn btn-naranja text-white fw-bold rounded-pill px-3 py-2 d-flex align-items-center position-relative shadow-sm" href="<?= $path_prefix ?>carrito.php">
-                    <i class="bi bi-cart3 fs-5"></i>
+                    <i class="ph ph-shopping-cart-simple fs-5"></i>
                     <?php if($items_carrito > 0): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-azul-oscuro border border-2 border-white" style="font-size: 0.75em;">
                             <?= $items_carrito ?>

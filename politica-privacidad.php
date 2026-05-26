@@ -116,10 +116,10 @@ require_once 'includes/header.php';
         </div>
         <div class="mt-5 pt-4 border-top text-center">
             <a href="index.php" class="btn btn-outline-secondary rounded-pill px-4 me-2">
-                <i class="bi bi-arrow-left me-1"></i> Volver al inicio
+                <i class="ph ph-arrow-left me-1"></i> Volver al inicio
             </a>
             <a href="aviso-legal.php" class="btn rounded-pill px-4" style="background:var(--azul-oscuro);color:#fff;">
-                Aviso Legal <i class="bi bi-arrow-right ms-1"></i>
+                Aviso Legal <i class="ph ph-arrow-right ms-1"></i>
             </a>
         </div>
     </div>

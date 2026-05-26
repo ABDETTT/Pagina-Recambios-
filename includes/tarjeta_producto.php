@@ -21,13 +21,17 @@ $foto = !empty($p['imagen_url']) ? $p['imagen_url'] : (!empty($p['imagen']) ? 'i
       <form action="scripts/agregar_carrito.php" method="POST" class="mt-auto">
         <input type="hidden" name="id_producto" value="<?= $p['id'] ?>">
         <button type="submit" class="btn btn-naranja w-100 btn-sm fw-bold rounded-pill" <?= (($p['stock'] ?? 0) <= 0) ? 'disabled' : '' ?>>
-            <i class="bi bi-cart-plus me-1"></i> Añadir
+            <i class="ph ph-shopping-cart me-1"></i> Añadir
         </button>
       </form>
       <?php if ($es_admin): ?>
           <div class="d-flex gap-2 mt-2 w-100">
               <a href="admin/editar_producto.php?id=<?= $p['id'] ?>" class="btn btn-warning w-50 btn-sm fw-bold rounded-pill">Editar</a>
-              <a href="admin/eliminar_producto.php?id=<?= $p['id'] ?>" class="btn btn-danger w-50 btn-sm fw-bold rounded-pill" onclick="return confirm('¿Seguro que deseas eliminar este producto?');">Borrar</a>
+              <form method="POST" action="admin/eliminar_producto.php" class="m-0 w-50" onsubmit="return confirm('¿Seguro que deseas eliminar este producto?');">
+                  <?= csrfField() ?>
+                  <input type="hidden" name="id" value="<?= $p['id'] ?>">
+                  <button type="submit" class="btn btn-danger w-100 btn-sm fw-bold rounded-pill">Borrar</button>
+              </form>
           </div>
       <?php endif; ?>
     </div>
@@ -55,15 +59,15 @@ $foto = !empty($p['imagen_url']) ? $p['imagen_url'] : (!empty($p['imagen']) ? 'i
                     <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
                         <span class="fw-bold me-2">Disponibilidad:</span>
                         <?php if(($p['stock'] ?? 0) > 0): ?>
-                            <span class="badge bg-success-subtle text-success px-2 py-1"><i class="bi bi-check-circle-fill me-1"></i>En stock (<?= $p['stock'] ?> uds)</span>
+                            <span class="badge bg-success-subtle text-success px-2 py-1"><i class="ph-fill ph-check-circle me-1"></i>En stock (<?= $p['stock'] ?> uds)</span>
                         <?php else: ?>
-                            <span class="badge bg-danger-subtle text-danger px-2 py-1"><i class="bi bi-x-circle-fill me-1"></i>Agotado</span>
+                            <span class="badge bg-danger-subtle text-danger px-2 py-1"><i class="ph-fill ph-x-circle me-1"></i>Agotado</span>
                         <?php endif; ?>
                     </div>
                     <form action="scripts/agregar_carrito.php" method="POST" class="d-flex gap-2 mb-4">
                         <input type="hidden" name="id_producto" value="<?= $p['id'] ?>">
                         <button type="submit" class="btn btn-naranja btn-lg flex-grow-1 fw-bold rounded-pill shadow-sm" <?= (($p['stock'] ?? 0) <= 0) ? 'disabled' : '' ?>>
-                            <i class="bi bi-cart-plus me-2"></i> Añadir al carrito
+                            <i class="ph ph-shopping-cart me-2"></i> Añadir al carrito
                         </button>
                     </form>
                 </div>

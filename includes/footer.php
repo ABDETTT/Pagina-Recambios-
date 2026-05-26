@@ -3,15 +3,15 @@
       <div class="row gy-4 mb-4">
         <div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
           <h5 class="text-white fw-bold mb-3 d-flex align-items-center">
-            <i class="bi bi-gear-wide-connected text-naranja me-2 fs-4"></i> Auto<span class="text-azul-claro">Stock</span>
+            <i class="ph ph-gear-six text-naranja me-2 fs-4"></i> Auto<span class="text-azul-claro">Stock</span>
           </h5>
           <p class="small text-white-50 mb-4 pe-lg-4">
             Tu tienda online de confianza para repuestos de automóvil. Trabajamos con las mejores marcas para garantizar la máxima calidad y rendimiento para tu vehículo.
           </p>
           <div class="d-flex gap-2">
-            <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light border-0 bg-white bg-opacity-10 rounded-circle nav-link-custom"><i class="bi bi-facebook"></i></a>
-            <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light border-0 bg-white bg-opacity-10 rounded-circle nav-link-custom"><i class="bi bi-instagram"></i></a>
-            <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light border-0 bg-white bg-opacity-10 rounded-circle nav-link-custom"><i class="bi bi-youtube"></i></a>
+            <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light border-0 bg-white bg-opacity-10 rounded-circle nav-link-custom"><i class="ph ph-facebook-logo"></i></a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light border-0 bg-white bg-opacity-10 rounded-circle nav-link-custom"><i class="ph ph-instagram-logo"></i></a>
+            <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light border-0 bg-white bg-opacity-10 rounded-circle nav-link-custom"><i class="ph ph-youtube-logo"></i></a>
           </div>
         </div>
         <div class="col-lg-3 col-md-6">
@@ -41,10 +41,10 @@
         </div>
         <div class="col-md-6 text-center text-md-end">
           <div class="d-inline-flex gap-3 align-items-center opacity-75">
-            <i class="bi bi-credit-card-fill fs-3 text-white"></i>
-            <i class="bi bi-paypal fs-4 text-white"></i>
-            <i class="bi bi-apple fs-4 text-white"></i>
-            <span class="small text-white-50 fw-bold ms-2"><i class="bi bi-shield-lock-fill text-azul-claro me-1"></i>Pago Seguro</span>
+            <i class="ph-fill ph-credit-card fs-3 text-white"></i>
+            <i class="ph ph-paypal-logo fs-4 text-white"></i>
+            <i class="ph ph-apple-logo fs-4 text-white"></i>
+            <span class="small text-white-50 fw-bold ms-2"><i class="ph-fill ph-shield-check text-azul-claro me-1"></i>Pago Seguro</span>
           </div>
         </div>
       </div>
@@ -53,7 +53,7 @@
 <div id="cookie-banner">
     <div class="container">
         <div class="d-flex align-items-start align-items-md-center">
-            <i class="bi bi-info-circle-fill cookie-icon"></i>
+            <i class="ph-fill ph-info cookie-icon"></i>
             <p>
                 Utilizamos cookies propias (necesarias para el carrito y la sesión) y de terceros para análisis de tráfico. Al hacer clic en "Aceptar Todo", consientes su uso. Lee nuestra <a href="<?= $path_prefix ?>aviso-legal.php#cookies">Política de Cookies</a> y <a href="<?= $path_prefix ?>politica-privacidad.php">Privacidad</a>.
             </p>
@@ -70,7 +70,7 @@
     <div class="modal-content border-0 rounded-4 shadow">
       <div class="modal-header" style="background:var(--azul-oscuro,#192C76);">
         <h5 class="modal-title text-white fw-bold" id="modalCookiesLabel">
-          <i class="bi bi-sliders me-2"></i>Configuración de Cookies
+          <i class="ph ph-sliders-horizontal me-2"></i>Configuración de Cookies
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
@@ -105,7 +105,7 @@
         </div>
         <div class="mt-4 p-3 rounded-3 small" style="background:#f0f4ff;">
           <a href="<?= $path_prefix ?>aviso-legal.php#cookies" style="color:var(--azul-oscuro,#192C76);">
-            <i class="bi bi-info-circle me-1"></i>Ver Política de Cookies completa
+            <i class="ph ph-info me-1"></i>Ver Política de Cookies completa
           </a>
         </div>
       </div>

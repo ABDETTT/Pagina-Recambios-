@@ -1,10 +1,14 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/includes/security.php';
+initSecureSession();
 $pagina_titulo = "Contacto | AutoStock";
 require_once 'includes/supabase_api.php'; 
 $mensaje_enviado = false;
 $error_form = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrfCheck()) {
+        $error_form = "Solicitud no válida. Recarga la página e inténtalo de nuevo.";
+    } else {
     $nombre = trim($_POST['nombre'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $asunto = trim($_POST['asunto'] ?? '');
@@ -49,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         $mensaje_enviado = true;
     }
+    }
 }
 include_once 'includes/header.php';
 ?>
@@ -63,17 +68,18 @@ include_once 'includes/header.php';
                 <h3 class="fw-bold mb-4">Envíanos un mensaje</h3>
                 <?php if ($mensaje_enviado): ?>
                     <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 12px;">
-                        <i class="bi bi-check-circle-fill me-2"></i> ¡Gracias por contactarnos! Hemos recibido tu mensaje y te responderemos pronto.
+                        <i class="ph-fill ph-check-circle me-2"></i> ¡Gracias por contactarnos! Hemos recibido tu mensaje y te responderemos pronto.
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
                 <?php if ($error_form): ?>
                     <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 12px;">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i> <?= htmlspecialchars($error_form) ?>
+                        <i class="ph-fill ph-warning me-2"></i> <?= htmlspecialchars($error_form) ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
                 <form method="POST" action="contacto.php">
+                    <?= csrfField() ?>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Nombre</label>
@@ -99,7 +105,7 @@ include_once 'includes/header.php';
                         <textarea name="mensaje" class="form-control" rows="5" placeholder="¿En qué podemos ayudarte?" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-naranja btn-lg w-100 fw-bold rounded-pill">
-                        <i class="bi bi-send me-2"></i> Enviar Mensaje
+                        <i class="ph ph-paper-plane-tilt me-2"></i> Enviar Mensaje
                     </button>
                 </form>
             </div>
@@ -108,21 +114,21 @@ include_once 'includes/header.php';
             <div class="card shadow-sm border-0 bg-azul-oscuro text-white p-4 p-md-5 h-100">
                 <h3 class="fw-bold mb-4">Información de Contacto</h3>
                 <div class="d-flex align-items-start mb-4">
-                    <i class="bi bi-geo-alt fs-2 me-3 text-warning"></i>
+                    <i class="ph ph-map-pin fs-2 me-3 text-warning"></i>
                     <div>
                         <h5 class="fw-bold mb-1">Nuestra Tienda</h5>
                         <p class="mb-0 text-white-50">Polígono Industrial Almoradi<br>Calle Municipal, Nave 12<br>03160 Almoradi, España</p>
                     </div>
                 </div>
                 <div class="d-flex align-items-start mb-4">
-                    <i class="bi bi-telephone fs-2 me-3 text-warning"></i>
+                    <i class="ph ph-phone fs-2 me-3 text-warning"></i>
                     <div>
                         <h5 class="fw-bold mb-1">Teléfono</h5>
                         <p class="mb-0 text-white-50">+34 900 123 456<br>Lunes a Viernes: 9:00 - 18:00</p>
                     </div>
                 </div>
                 <div class="d-flex align-items-start mb-4">
-                    <i class="bi bi-envelope fs-2 me-3 text-warning"></i>
+                    <i class="ph ph-envelope-simple fs-2 me-3 text-warning"></i>
                     <div>
                         <h5 class="fw-bold mb-1">Email</h5>
                         <p class="mb-0 text-white-50">soporte@autostock.com</p>
@@ -131,9 +137,9 @@ include_once 'includes/header.php';
                 <hr class="border-light opacity-25 my-4">
                 <h5 class="fw-bold mb-3">Síguenos</h5>
                 <div class="d-flex gap-3">
-                    <a href="#" class="btn btn-outline-light rounded-circle"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="btn btn-outline-light rounded-circle"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="btn btn-outline-light rounded-circle"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="btn btn-outline-light rounded-circle"><i class="ph ph-facebook-logo"></i></a>
+                    <a href="#" class="btn btn-outline-light rounded-circle"><i class="ph ph-instagram-logo"></i></a>
+                    <a href="#" class="btn btn-outline-light rounded-circle"><i class="ph ph-twitter-logo"></i></a>
                 </div>
             </div>
         </div>

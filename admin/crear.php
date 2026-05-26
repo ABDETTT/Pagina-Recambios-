@@ -1,6 +1,7 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-require_once '../includes/supabase_api.php'; 
+require_once __DIR__ . '/../includes/security.php';
+initSecureSession();
+require_once '../includes/supabase_api.php';
 if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
     header("Location: ../index.php");
     exit;
@@ -8,6 +9,9 @@ if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
 $res_coches = consultaSupabase("coches?select=*&order=marca.asc,modelo.asc");
 $todos_coches = (!empty($res_coches) && !isset($res_coches['error'])) ? $res_coches : [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrfCheck()) {
+        $error = "Solicitud no válida.";
+    } else {
     $precio_input = (float)($_POST['precio'] ?? 0);
     $stock_input  = (int)($_POST['stock'] ?? 10);
     if ($precio_input < 0 || $stock_input < 0) {
@@ -45,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "No se pudo crear el producto.";
         }
     }
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -62,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
         <form method="POST" enctype="multipart/form-data">
+            <?= csrfField() ?>
             <div class="mb-3">
                 <label class="form-label fw-bold">Imagen del Producto</label>
                 <input type="file" name="imagen" class="form-control" accept="image/*">

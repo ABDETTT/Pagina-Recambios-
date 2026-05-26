@@ -15,7 +15,7 @@ require_once 'includes/header.php';
             <p class="text-muted mb-0">Resuelve tus dudas sobre envíos, devoluciones y productos.</p>
         </div>
         <div class="accordion accordion-flush" id="accordionFAQ">
-            <h3 class="fs-5 fw-bold titulo-oscuro mt-4 mb-3"><i class="bi bi-box-seam text-naranja me-2"></i>Pedidos y Envíos</h3>
+            <h3 class="fs-5 fw-bold titulo-oscuro mt-4 mb-3"><i class="ph ph-package text-naranja me-2"></i>Pedidos y Envíos</h3>
             <div class="accordion-item bg-transparent border-bottom">
                 <h2 class="accordion-header" id="headingOne">
                     <button class="accordion-button collapsed bg-transparent fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
@@ -40,7 +40,7 @@ require_once 'includes/header.php';
                     </div>
                 </div>
             </div>
-            <h3 class="fs-5 fw-bold titulo-oscuro mt-5 mb-3"><i class="bi bi-arrow-return-left text-naranja me-2"></i>Devoluciones y Garantía</h3>
+            <h3 class="fs-5 fw-bold titulo-oscuro mt-5 mb-3"><i class="ph ph-arrow-bend-up-left text-naranja me-2"></i>Devoluciones y Garantía</h3>
             <div class="accordion-item bg-transparent border-bottom">
                 <h2 class="accordion-header" id="headingThree">
                     <button class="accordion-button collapsed bg-transparent fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
@@ -65,7 +65,7 @@ require_once 'includes/header.php';
                     </div>
                 </div>
             </div>
-            <h3 class="fs-5 fw-bold titulo-oscuro mt-5 mb-3"><i class="bi bi-tools text-naranja me-2"></i>Productos y Compatibilidad</h3>
+            <h3 class="fs-5 fw-bold titulo-oscuro mt-5 mb-3"><i class="ph ph-wrench text-naranja me-2"></i>Productos y Compatibilidad</h3>
             <div class="accordion-item bg-transparent border-bottom">
                 <h2 class="accordion-header" id="headingFive">
                     <button class="accordion-button collapsed bg-transparent fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">

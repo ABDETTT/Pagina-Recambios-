@@ -1,11 +1,17 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-require_once 'includes/supabase_api.php';
+require_once __DIR__ . '/../includes/security.php';
+initSecureSession();
+require_once '../includes/supabase_api.php';
 if (isset($_SESSION['usuario_id'])) {
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit;
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrfCheck()) {
+        $error = "Solicitud no válida. Recarga la página e inténtalo de nuevo.";
+    } elseif (!rateLimit('login', 5, 300)) {
+        $error = "Demasiados intentos. Espera unos minutos antes de volver a intentarlo.";
+    } else {
     $email = trim($_POST['email'] ?? '');
     $password_ingresada = $_POST['password'] ?? '';
     if (empty($email) || empty($password_ingresada)) {
@@ -14,14 +20,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $endpoint = "perfiles?email=eq." . urlencode($email) . "&select=*";
         $respuesta = consultaSupabase($endpoint);
         if (!empty($respuesta) && !isset($respuesta['error'])) {
-            $usuario = $respuesta[0]; 
+            $usuario = $respuesta[0];
             if (password_verify($password_ingresada, $usuario['password'])) {
+                session_regenerate_id(true);
                 $_SESSION['usuario_id'] = $usuario['id'];
                 $_SESSION['nombre'] = $usuario['nombre'];
                 $_SESSION['apellido'] = $usuario['apellido'];
                 $_SESSION['email'] = $usuario['email'];
                 $_SESSION['es_admin'] = ($usuario['rol_id'] == 1);
-                header("Location: index.php");
+                header("Location: ../index.php");
                 exit;
             } else {
                 $error = "Credenciales incorrectas.";
@@ -30,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Credenciales incorrectas.";
         }
     }
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -37,14 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Iniciar Sesión | AutoStock</title>
-    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light d-flex align-items-center vh-100">
     <div class="container" style="max-width: 400px;">
         <div class="text-center mb-3">
-            <a href="index.php">
-                <img src="assets/img/logo.svg" alt="AutoStock" style="height:64px;width:auto;">
+            <a href="../index.php">
+                <img src="../assets/img/logo.svg" alt="AutoStock" style="height:64px;width:auto;">
             </a>
         </div>
         <div class="card shadow border-0 p-4">
@@ -56,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="alert alert-danger small"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
             <form method="POST" action="login.php">
+                <?= csrfField() ?>
                 <div class="mb-3">
                     <label class="form-label small fw-bold">Email</label>
                     <input type="email" name="email" class="form-control" required>

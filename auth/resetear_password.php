@@ -1,8 +1,9 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-require_once 'includes/supabase_api.php';
+require_once __DIR__ . '/../includes/security.php';
+initSecureSession();
+require_once '../includes/supabase_api.php';
 if (isset($_SESSION['usuario_id'])) {
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit;
 }
 $token      = trim($_GET['token'] ?? '');
@@ -11,7 +12,7 @@ $token_data   = null;
 $exito        = false;
 $error        = '';
 if ($token) {
-    $file = __DIR__ . '/data/reset_tokens.json';
+    $file = __DIR__ . '/../data/reset_tokens.json';
     if (file_exists($file)) {
         $tokens = json_decode(file_get_contents($file), true) ?: [];
         foreach ($tokens as $t) {
@@ -41,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token_valido) {
             ['password' => $hash]
         );
         if (!isset($res['error'])) {
-            $file   = __DIR__ . '/data/reset_tokens.json';
+            $file   = __DIR__ . '/../data/reset_tokens.json';
             $tokens = json_decode(file_get_contents($file), true) ?: [];
             $tokens = array_values(array_filter($tokens, fn($t) => $t['token'] !== $token));
             file_put_contents($file, json_encode($tokens, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
@@ -57,9 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token_valido) {
 <head>
     <meta charset="UTF-8">
     <title>Nueva Contraseña | AutoStock</title>
-    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
     <style>
         :root { --azul-oscuro: #192C76; --naranja: #FF7403; }
         .btn-naranja { background-color: var(--naranja); border-color: var(--naranja); color: #fff; }
@@ -72,8 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token_valido) {
 <body class="d-flex align-items-center justify-content-center min-vh-100">
     <div class="container" style="max-width: 440px;">
         <div class="text-center mb-4">
-            <a href="index.php">
-                <img src="assets/img/logo.svg" alt="AutoStock" style="height:64px;width:auto;">
+            <a href="../index.php">
+                <img src="../assets/img/logo.svg" alt="AutoStock" style="height:64px;width:auto;">
             </a>
         </div>
         <div class="card border-0 shadow-sm rounded-4 p-4">
@@ -104,12 +105,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token_valido) {
                     <div class="mb-3">
                         <label class="form-label fw-semibold small">Nueva contraseña</label>
                         <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                            <span class="input-group-text bg-light border-end-0"><i class="ph ph-lock-simple text-muted"></i></span>
                             <input type="password" name="password" id="password"
                                    class="form-control border-start-0 ps-0"
                                    placeholder="Mínimo 8 caracteres" required minlength="8">
                             <button type="button" class="btn btn-outline-secondary border-start-0" id="togglePass">
-                                <i class="bi bi-eye" id="eyeIcon"></i>
+                                <i class="ph ph-eye" id="eyeIcon"></i>
                             </button>
                         </div>
                         <div class="mt-2 bg-light rounded overflow-hidden" style="height:4px;">
@@ -120,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token_valido) {
                     <div class="mb-4">
                         <label class="form-label fw-semibold small">Confirmar contraseña</label>
                         <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock-fill text-muted"></i></span>
+                            <span class="input-group-text bg-light border-end-0"><i class="ph-fill ph-lock-simple text-muted"></i></span>
                             <input type="password" name="confirmar" id="confirmar"
                                    class="form-control border-start-0 ps-0"
                                    placeholder="Repite la contraseña" required>
@@ -128,26 +129,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token_valido) {
                         <small id="match-msg" class="mt-1 d-none"></small>
                     </div>
                     <button type="submit" class="btn btn-naranja w-100 fw-bold rounded-pill py-2">
-                        <i class="bi bi-check-circle me-2"></i> Guardar nueva contraseña
+                        <i class="ph ph-check-circle me-2"></i> Guardar nueva contraseña
                     </button>
                 </form>
             <?php endif; ?>
         </div>
     </div>
     <script>
-        // Toggle visibilidad contraseña
         document.getElementById('togglePass')?.addEventListener('click', function() {
             const inp = document.getElementById('password');
             const icon = document.getElementById('eyeIcon');
             if (inp.type === 'password') {
                 inp.type = 'text';
-                icon.className = 'bi bi-eye-slash';
+                icon.className = 'ph ph-eye-slash';
             } else {
                 inp.type = 'password';
-                icon.className = 'bi bi-eye';
+                icon.className = 'ph ph-eye';
             }
         });
-        // Indicador fortaleza contraseña
         document.getElementById('password')?.addEventListener('input', function() {
             const val = this.value;
             const bar = document.getElementById('strength-bar');
@@ -171,7 +170,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token_valido) {
             txt.textContent = val ? cfg.t : '';
             txt.style.color = cfg.c;
         });
-        // Verificar coincidencia
         document.getElementById('confirmar')?.addEventListener('input', function() {
             const pass = document.getElementById('password').value;
             const msg  = document.getElementById('match-msg');

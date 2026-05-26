@@ -1,13 +1,14 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/includes/security.php';
+initSecureSession();
 $pagina_titulo = "Catálogo | AutoStock";
-require_once 'includes/supabase_api.php'; 
-include_once 'includes/header.php'; 
+require_once 'includes/supabase_api.php';
+include_once 'includes/header.php';
 $cat_filtro = isset($_GET['categoria']) ? (int)$_GET['categoria'] : null;
 $busqueda = trim($_GET['s'] ?? '');
 $marca_filtro = trim($_GET['marca'] ?? '');
 $modelo_filtro = trim($_GET['modelo'] ?? '');
-$pagina = max(1, (int)($_GET['p'] ?? 1)); 
+$pagina = max(1, (int)($_GET['p'] ?? 1));
 $coche_sesion_id = $_SESSION['coche_activo_id'] ?? null;
 $coche_sesion_nombre = $_SESSION['coche_activo_nombre'] ?? null;
 if (isset($_GET['quitar_sesion_coche'])) {
@@ -18,7 +19,7 @@ if (isset($_GET['quitar_sesion_coche'])) {
     header("Location: catalogo.php");
     exit;
 }
-$por_pagina = 9; 
+$por_pagina = 9;
 $offset = ($pagina - 1) * $por_pagina;
 $filtrar_por_coche = ($marca_filtro !== '' && $modelo_filtro !== '');
 $filtrar_por_sesion = ($coche_sesion_id !== null && !$filtrar_por_coche);
@@ -49,14 +50,14 @@ if ($busqueda) {
 }
 if ($filtrar_por_coche || $filtrar_por_sesion) {
     $ids = empty($producto_ids_filtrados) ? "0" : implode(',', $producto_ids_filtrados);
-    $endpoint .= "&id=in.({$ids})"; 
+    $endpoint .= "&id=in.({$ids})";
 }
 $res_productos = consultaSupabase($endpoint);
 $productos = (!empty($res_productos) && !isset($res_productos['error'])) ? $res_productos : [];
 foreach ($productos as &$p) {
     $p['cat_nombre'] = $p['categorias']['nombre'] ?? 'Desconocida';
 }
-unset($p); 
+unset($p);
 $res_categorias = consultaSupabase("categorias?select=*&order=nombre.asc");
 $categorias = (!empty($res_categorias) && !isset($res_categorias['error'])) ? $res_categorias : [];
 $res_marcas = consultaSupabase("coches?select=marca&order=marca.asc");
@@ -74,6 +75,24 @@ if ($modelo_filtro) $params_filtro['modelo']    = $modelo_filtro;
 $url_params = !empty($params_filtro) ? '&' . http_build_query($params_filtro) : '';
 ?>
 <div class="container py-5">
+
+  <div class="row justify-content-center mb-4">
+    <div class="col-lg-7 col-md-9">
+      <form action="catalogo.php" method="GET">
+        <?php if($cat_filtro): ?><input type="hidden" name="categoria" value="<?= htmlspecialchars($cat_filtro) ?>"><?php endif; ?>
+        <?php if($marca_filtro): ?><input type="hidden" name="marca" value="<?= htmlspecialchars($marca_filtro) ?>"><?php endif; ?>
+        <?php if($modelo_filtro): ?><input type="hidden" name="modelo" value="<?= htmlspecialchars($modelo_filtro) ?>"><?php endif; ?>
+        <div class="input-group shadow-sm" style="border-radius:50px;overflow:hidden;">
+          <span class="input-group-text bg-white border-0 ps-4"><i class="ph ph-magnifying-glass text-muted"></i></span>
+          <input type="text" name="s" class="form-control border-0 shadow-none py-3 fs-6"
+                 placeholder="Buscar por nombre o referencia..."
+                 value="<?= htmlspecialchars($busqueda) ?>">
+          <button class="btn btn-naranja fw-bold px-4" type="submit">Buscar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="row">
     <aside class="col-lg-3 mb-4">
       <div class="filter-sidebar shadow-sm p-3 bg-white rounded mb-4">
@@ -100,7 +119,7 @@ $url_params = !empty($params_filtro) ? '&' . http_build_query($params_filtro) : 
                 <?php endforeach; ?>
             </select>
         </div>
-        <button id="btn-filtrar-coche" class="btn btn-naranja w-100 fw-bold"><i class="bi bi-funnel me-1"></i> Filtrar Recambios</button>
+        <button id="btn-filtrar-coche" class="btn btn-naranja w-100 fw-bold"><i class="ph ph-funnel me-1"></i> Filtrar Recambios</button>
         <?php if($filtrar_por_coche): ?>
             <a href="catalogo.php" class="btn btn-outline-danger w-100 mt-2 btn-sm">Quitar Filtro</a>
         <?php endif; ?>
@@ -120,24 +139,13 @@ $url_params = !empty($params_filtro) ? '&' . http_build_query($params_filtro) : 
             </a>
           <?php endforeach; ?>
         </div>
-        <hr>
-        <form action="catalogo.php" method="GET" class="mt-3">
-          <?php if($cat_filtro): ?><input type="hidden" name="categoria" value="<?= htmlspecialchars($cat_filtro) ?>"><?php endif; ?>
-          <?php if($marca_filtro): ?><input type="hidden" name="marca" value="<?= htmlspecialchars($marca_filtro) ?>"><?php endif; ?>
-          <?php if($modelo_filtro): ?><input type="hidden" name="modelo" value="<?= htmlspecialchars($modelo_filtro) ?>"><?php endif; ?>
-          <h5 class="fw-bold mb-3">Buscar</h5>
-          <div class="input-group">
-              <input type="text" name="s" class="form-control shadow-none" placeholder="Nombre o ref..." value="<?= htmlspecialchars($busqueda) ?>">
-              <button class="btn btn-naranja" type="submit"><i class="bi bi-search"></i></button>
-          </div>
-        </form>
       </div>
     </aside>
     <main class="col-lg-9">
       <?php if ($filtrar_por_sesion): ?>
       <div class="alert alert-warning border-naranja bg-light shadow-sm d-flex justify-content-between align-items-center rounded-4 mb-4">
           <div>
-              <h5 class="fw-bold mb-1 text-naranja"><i class="bi bi-car-front-fill me-2"></i> Mostrando repuestos para tu vehículo</h5>
+              <h5 class="fw-bold mb-1 text-naranja"><i class="ph-fill ph-car me-2"></i> Mostrando repuestos para tu vehículo</h5>
               <p class="mb-0 text-muted small">Catálogo filtrado automáticamente para: <strong><?= htmlspecialchars($coche_sesion_nombre) ?></strong></p>
           </div>
           <a href="?quitar_sesion_coche=1" class="btn btn-sm btn-outline-naranja rounded-pill px-3 fw-bold">Quitar Filtro</a>
@@ -160,7 +168,7 @@ $url_params = !empty($params_filtro) ? '&' . http_build_query($params_filtro) : 
           <?php endforeach; ?>
         <?php else: ?>
           <div class="text-center py-5 w-100">
-              <i class="bi bi-tools display-1 text-muted opacity-25"></i>
+              <i class="ph ph-wrench display-1 text-muted opacity-25"></i>
               <h4 class="mt-3 text-muted">No se encontraron productos con estos filtros.</h4>
               <p class="text-muted">Prueba a buscar otro vehículo o elimina algunos filtros.</p>
           </div>
@@ -211,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const marca = selectMarca.value;
         const modelo = selectModelo.value;
         const url = new URL(window.location.href);
-        url.searchParams.delete('p'); // Resetear paginación al filtrar
+        url.searchParams.delete('p');
         if (marca && modelo) {
             url.searchParams.set('marca', marca);
             url.searchParams.set('modelo', modelo);

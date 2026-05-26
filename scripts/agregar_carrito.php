@@ -1,5 +1,6 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../includes/security.php';
+initSecureSession();
 require_once '../includes/supabase_api.php';
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['id_producto'])) {
     header("Location: ../index.php");

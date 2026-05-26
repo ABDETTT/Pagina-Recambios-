@@ -1,10 +1,11 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-require_once 'includes/supabase_api.php';
+require_once __DIR__ . '/../includes/security.php';
+initSecureSession();
+require_once '../includes/supabase_api.php';
 $token  = trim($_GET['token'] ?? '');
 $estado = 'error'; 
 if ($token) {
-    $file = __DIR__ . '/data/pending_verifications.json';
+    $file = __DIR__ . '/../data/pending_verifications.json';
     if (file_exists($file)) {
         $pendientes = json_decode(file_get_contents($file), true) ?: [];
         $encontrado = null;
@@ -49,9 +50,9 @@ if ($token) {
 <head>
     <meta charset="UTF-8">
     <title>Verificar Email | AutoStock</title>
-    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
     <style>
         :root { --azul-oscuro: #192C76; --naranja: #FF7403; }
         .btn-naranja { background-color: var(--naranja); border-color: var(--naranja); color: #fff; }
@@ -66,8 +67,8 @@ if ($token) {
 <body class="d-flex align-items-center justify-content-center min-vh-100">
     <div class="container" style="max-width: 480px;">
         <div class="text-center mb-4">
-            <a href="index.php">
-                <img src="assets/img/logo.svg" alt="AutoStock" style="height:64px;width:auto;">
+            <a href="../index.php">
+                <img src="../assets/img/logo.svg" alt="AutoStock" style="height:64px;width:auto;">
             </a>
         </div>
         <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
@@ -77,7 +78,7 @@ if ($token) {
                 <p class="text-muted">Bienvenido/a a AutoStock, <strong><?= htmlspecialchars($nombre_usuario ?? '') ?></strong>.
                 Tu cuenta está activa. Serás redirigido en 5 segundos…</p>
                 <a href="login.php?success=1" class="btn btn-naranja rounded-pill px-4 fw-bold mt-2">
-                    <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar sesión ahora
+                    <i class="ph ph-sign-in me-1"></i> Iniciar sesión ahora
                 </a>
             <?php elseif ($estado === 'expirado'): ?>
                 <div style="font-size:4rem;" class="mb-3">⏰</div>

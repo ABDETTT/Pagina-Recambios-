@@ -1,14 +1,23 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../includes/security.php';
+initSecureSession();
 require_once '../includes/supabase_api.php';
 require_once '../includes/mailer.php';
 if (!isset($_SESSION['usuario_id']) || empty($_SESSION['carrito'])) {
     header("Location: ../index.php");
     exit;
 }
+if (!csrfCheck()) {
+    header("Location: ../carrito.php?error=csrf");
+    exit;
+}
+$pagos_permitidos = ['Tarjeta de Crédito', 'Transferencia Bancaria', 'PayPal'];
+$forma_pago = $_POST['forma_pago'] ?? '';
+if (!in_array($forma_pago, $pagos_permitidos, true)) {
+    $forma_pago = 'Tarjeta de Crédito';
+}
 $usuario_id = $_SESSION['usuario_id'];
 $carrito = $_SESSION['carrito'];
-$forma_pago = $_POST['forma_pago'] ?? 'Tarjeta de Crédito';
 $total = 0;
 foreach ($carrito as $item) {
     $total += $item['precio'] * $item['cantidad'];

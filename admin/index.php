@@ -1,5 +1,6 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../includes/security.php';
+initSecureSession();
 if (!isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
     header("Location: ../index.php");
     exit;
@@ -8,6 +9,9 @@ require_once '../includes/supabase_api.php';
 require_once '../includes/mailer.php';
 $mensaje = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrfCheck()) {
+        $mensaje = "Solicitud no válida.";
+    } else {
     $action = $_POST['action'] ?? '';
     if ($action === 'actualizar_estado') {
         $pedido_id = (int)($_POST['pedido_id'] ?? 0);
@@ -101,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mensaje = "Mensaje de contacto eliminado.";
         }
     }
+    }
 }
 $res_productos = consultaSupabase("productos?select=*&order=id.desc");
 $productos = (!empty($res_productos) && !isset($res_productos['error'])) ? $res_productos : [];
@@ -153,41 +158,54 @@ $fechas_labels = json_encode(array_keys($grafica_ingresos));
 $datos_ingresos = json_encode(array_values($grafica_ingresos));
 $datos_pedidos = json_encode(array_values($grafica_pedidos));
 $mensajes_pendientes = count(array_filter($mensajes_contacto, function($m) { return !($m['leido'] ?? false); }));
+if (isset($_SESSION['admin_msg'])) {
+    $mensaje_flash = $_SESSION['admin_msg'];
+    unset($_SESSION['admin_msg']);
+} else {
+    $mensaje_flash = null;
+}
 $pagina_titulo = "Panel Avanzado | AutoStock";
 include_once '../includes/header.php';
 ?>
 <script src="../assets/js/admin-tabs.js"></script>
 <main class="container py-5">
     <header class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-bold titulo-oscuro"><i class="bi bi-shield-lock-fill text-naranja me-2"></i> Admin Panel</h1>
-        <a href="crear.php" class="btn btn-naranja fw-bold"><i class="bi bi-plus-lg me-2"></i> Añadir Producto</a>
+        <h1 class="fw-bold titulo-oscuro"><i class="ph-fill ph-shield-check text-naranja me-2"></i> Admin Panel</h1>
+        <a href="crear.php" class="btn btn-naranja fw-bold"><i class="ph ph-plus me-2"></i> Añadir Producto</a>
     </header>
     <?php if ($mensaje): ?>
         <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i> <?= htmlspecialchars($mensaje) ?>
+            <i class="ph-fill ph-check-circle me-2"></i> <?= htmlspecialchars($mensaje) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+    <?php if ($mensaje_flash): ?>
+        <div class="alert alert-<?= $mensaje_flash['tipo'] ?> alert-dismissible fade show shadow-sm border-0" role="alert">
+            <i class="<?= $mensaje_flash['tipo'] === 'success' ? 'ph-fill ph-check-circle' : 'ph-fill ph-warning' ?> me-2"></i>
+            <?= htmlspecialchars($mensaje_flash['texto']) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
     <ul class="nav nav-tabs nav-fill mb-4 fw-bold" id="adminTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active text-azul-oscuro" data-tab="dash" type="button" onclick="adminTab('dash')"><i class="bi bi-speedometer2 me-1"></i> Dashboard</button>
+            <button class="nav-link active text-azul-oscuro" data-tab="dash" type="button" onclick="adminTab('dash')"><i class="ph ph-gauge me-1"></i> Dashboard</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link text-azul-oscuro" data-tab="pedidos" type="button" onclick="adminTab('pedidos')"><i class="bi bi-box-seam me-1"></i> Pedidos</button>
+            <button class="nav-link text-azul-oscuro" data-tab="pedidos" type="button" onclick="adminTab('pedidos')"><i class="ph ph-package me-1"></i> Pedidos</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link text-azul-oscuro" data-tab="productos" type="button" onclick="adminTab('productos')"><i class="bi bi-tags me-1"></i> Catálogo</button>
+            <button class="nav-link text-azul-oscuro" data-tab="productos" type="button" onclick="adminTab('productos')"><i class="ph ph-tag me-1"></i> Catálogo</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link text-azul-oscuro" data-tab="clientes" type="button" onclick="adminTab('clientes')"><i class="bi bi-people me-1"></i> Clientes</button>
+            <button class="nav-link text-azul-oscuro" data-tab="clientes" type="button" onclick="adminTab('clientes')"><i class="ph ph-users me-1"></i> Clientes</button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link text-azul-oscuro" data-tab="mensajes" type="button" onclick="adminTab('mensajes')">
-                <i class="bi bi-envelope-fill me-1"></i> Mensajes
+                <i class="ph-fill ph-envelope-simple me-1"></i> Mensajes
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link text-azul-oscuro" data-tab="herramientas" type="button" onclick="adminTab('herramientas')"><i class="bi bi-tools me-1"></i> Herramientas</button>
+            <button class="nav-link text-azul-oscuro" data-tab="herramientas" type="button" onclick="adminTab('herramientas')"><i class="ph ph-wrench me-1"></i> Herramientas</button>
         </li>
     </ul>
     <div class="tab-content" id="adminTabsContent">
@@ -195,28 +213,28 @@ include_once '../includes/header.php';
             <div class="row g-4 mb-4">
                 <article class="col-md-3">
                     <div class="card shadow-sm border-0 text-center py-4 rounded-4 bg-white stat-card">
-                        <i class="bi bi-cash-coin display-4 text-success mb-2"></i>
+                        <i class="ph ph-coins display-4 text-success mb-2"></i>
                         <h3 class="fw-bold mb-0" data-counter data-target="<?= $total_ingresos ?>"><?= number_format($total_ingresos, 2) ?> €</h3>
                         <p class="text-muted mb-0 small">Ingresos Totales</p>
                     </div>
                 </article>
                 <article class="col-md-3">
                     <div class="card shadow-sm border-0 text-center py-4 rounded-4 bg-white stat-card">
-                        <i class="bi bi-box-seam display-4 text-naranja mb-2"></i>
+                        <i class="ph ph-package display-4 text-naranja mb-2"></i>
                         <h3 class="fw-bold mb-0" data-counter data-target="<?= $total_pedidos ?>"><?= $total_pedidos ?></h3>
                         <p class="text-muted mb-0 small">Pedidos Realizados</p>
                     </div>
                 </article>
                 <article class="col-md-3">
                     <div class="card shadow-sm border-0 text-center py-4 rounded-4 bg-white stat-card">
-                        <i class="bi bi-people display-4 text-azul-oscuro mb-2"></i>
+                        <i class="ph ph-users display-4 text-azul-oscuro mb-2"></i>
                         <h3 class="fw-bold mb-0" data-counter data-target="<?= $total_clientes ?>"><?= $total_clientes ?></h3>
                         <p class="text-muted mb-0 small">Clientes Registrados</p>
                     </div>
                 </article>
                 <article class="col-md-3">
                     <div class="card shadow-sm border-0 text-center py-4 rounded-4 bg-white stat-card <?= $stock_bajo > 0 ? 'border border-danger border-2' : '' ?>">
-                        <i class="bi bi-exclamation-triangle display-4 <?= $stock_bajo > 0 ? 'text-danger' : 'text-secondary' ?> mb-2"></i>
+                        <i class="ph ph-warning display-4 <?= $stock_bajo > 0 ? 'text-danger' : 'text-secondary' ?> mb-2"></i>
                         <h3 class="fw-bold mb-0 <?= $stock_bajo > 0 ? 'text-danger' : '' ?>" data-counter data-target="<?= $stock_bajo ?>"><?= $stock_bajo ?></h3>
                         <p class="text-muted mb-0 small">Alertas Stock Bajo</p>
                     </div>
@@ -226,7 +244,7 @@ include_once '../includes/header.php';
                 <div class="col-md-6 mb-4 mb-md-0">
                     <div class="card shadow-sm border-0 rounded-4 h-100">
                         <div class="card-body p-4">
-                            <h5 class="fw-bold titulo-oscuro mb-3"><i class="bi bi-graph-up-arrow me-2 text-naranja"></i>Evolución de Ingresos</h5>
+                            <h5 class="fw-bold titulo-oscuro mb-3"><i class="ph ph-trend-up me-2 text-naranja"></i>Evolución de Ingresos</h5>
                             <canvas id="graficaIngresos" height="200"></canvas>
                         </div>
                     </div>
@@ -234,7 +252,7 @@ include_once '../includes/header.php';
                 <div class="col-md-6">
                     <div class="card shadow-sm border-0 rounded-4 h-100">
                         <div class="card-body p-4">
-                            <h5 class="fw-bold titulo-oscuro mb-3"><i class="bi bi-bar-chart-fill me-2 text-naranja"></i>Volumen de Pedidos</h5>
+                            <h5 class="fw-bold titulo-oscuro mb-3"><i class="ph-fill ph-chart-bar me-2 text-naranja"></i>Volumen de Pedidos</h5>
                             <canvas id="graficaPedidos" height="200"></canvas>
                         </div>
                     </div>
@@ -244,7 +262,6 @@ include_once '../includes/header.php';
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const labels = <?= $fechas_labels ?>;
-                    // Gráfica de Ingresos
                     new Chart(document.getElementById('graficaIngresos'), {
                         type: 'line',
                         data: {
@@ -265,7 +282,6 @@ include_once '../includes/header.php';
                             scales: { y: { beginAtZero: true } }
                         }
                     });
-                    // Gráfica de Pedidos
                     new Chart(document.getElementById('graficaPedidos'), {
                         type: 'bar',
                         data: {
@@ -286,7 +302,7 @@ include_once '../includes/header.php';
                 });
             </script>
             <div class="alert alert-info border-0 shadow-sm rounded-4">
-                <i class="bi bi-info-circle-fill me-2"></i> <strong>Tip:</strong> Navega por las pestañas superiores para gestionar el inventario, clientes, mensajes y herramientas de importación masiva.
+                <i class="ph-fill ph-info me-2"></i> <strong>Tip:</strong> Navega por las pestañas superiores para gestionar el inventario, clientes, mensajes y herramientas de importación masiva.
             </div>
         </div>
         <div class="tab-pane" id="pedidos" role="tabpanel" style="display:none">
@@ -313,6 +329,7 @@ include_once '../includes/header.php';
                                             <td class="fw-bold text-naranja"><?= number_format($pedido['total'] ?? 0, 2) ?> €</td>
                                             <td>
                                                 <form method="POST" class="d-flex align-items-center gap-2 m-0">
+                                                    <?= csrfField() ?>
                                                     <input type="hidden" name="action" value="actualizar_estado">
                                                     <input type="hidden" name="pedido_id" value="<?= $pedido['id'] ?>">
                                                     <select name="estado" class="form-select form-select-sm" onchange="this.form.submit()" style="width: 140px;">
@@ -365,11 +382,15 @@ include_once '../includes/header.php';
                                             </td>
                                             <td class="text-end pe-4">
                                                 <a href="editar_producto.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-naranja me-1" title="Editar">
-                                                    <i class="bi bi-pencil-square"></i>
+                                                    <i class="ph ph-note-pencil"></i>
                                                 </a>
-                                                <a href="eliminar_producto.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('¿Seguro que deseas eliminar este repuesto?');">
-                                                    <i class="bi bi-trash3"></i>
-                                                </a>
+                                                <form method="POST" action="eliminar_producto.php" class="d-inline-block m-0" onsubmit="return confirm('¿Seguro que deseas eliminar este repuesto?');">
+                                                    <?= csrfField() ?>
+                                                    <input type="hidden" name="id" value="<?= $p['id'] ?>">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                                        <i class="ph ph-trash"></i>
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -401,6 +422,7 @@ include_once '../includes/header.php';
                                         <td><a href="mailto:<?= htmlspecialchars($u['email']) ?>"><?= htmlspecialchars($u['email']) ?></a></td>
                                         <td>
                                             <form method="POST" class="m-0">
+                                                <?= csrfField() ?>
                                                 <input type="hidden" name="action" value="actualizar_rol">
                                                 <input type="hidden" name="usuario_id" value="<?= $u['id'] ?>">
                                                 <select name="rol_id" class="form-select form-select-sm d-inline-block w-auto" onchange="this.form.submit()">
@@ -423,14 +445,15 @@ include_once '../includes/header.php';
                 <div class="col-md-8">
                     <div class="card shadow-sm border-0 rounded-4 h-100">
                         <div class="card-body p-4">
-                            <h4 class="fw-bold titulo-oscuro mb-3"><i class="bi bi-filetype-csv text-naranja me-2"></i> Importación Masiva (CSV)</h4>
+                            <h4 class="fw-bold titulo-oscuro mb-3"><i class="ph ph-file-csv text-naranja me-2"></i> Importación Masiva (CSV)</h4>
                             <p class="text-muted small mb-4">Sube un archivo CSV para cargar cientos de productos a la vez. <br><strong>Formato:</strong> Nombre, Precio, Stock, Categoria_ID, Descripcion</p>
                             <form method="POST" enctype="multipart/form-data">
+                                <?= csrfField() ?>
                                 <input type="hidden" name="action" value="importar_csv">
                                 <div class="mb-3">
                                     <input type="file" name="archivo_csv" class="form-control" accept=".csv" required>
                                 </div>
-                                <button type="submit" class="btn btn-naranja w-100 fw-bold"><i class="bi bi-cloud-upload me-2"></i> Iniciar Importación</button>
+                                <button type="submit" class="btn btn-naranja w-100 fw-bold"><i class="ph ph-cloud-arrow-up me-2"></i> Iniciar Importación</button>
                             </form>
                         </div>
                     </div>
@@ -442,7 +465,7 @@ include_once '../includes/header.php';
                 <div class="card-body p-0">
                     <?php if (empty($mensajes_contacto)): ?>
                         <div class="text-center py-5">
-                            <i class="bi bi-envelope-open display-3 text-muted opacity-50 mb-3"></i>
+                            <i class="ph ph-envelope-open display-3 text-muted opacity-50 mb-3"></i>
                             <h5 class="fw-bold text-azul-oscuro">No hay mensajes de contacto</h5>
                             <p class="text-muted mb-0">Cuando los usuarios envíen el formulario de contacto, aparecerán aquí.</p>
                         </div>
@@ -467,7 +490,7 @@ include_once '../includes/header.php';
                                             <td class="ps-4 text-muted small"><?= htmlspecialchars($m['fecha'] ?? 'N/A') ?></td>
                                             <td>
                                                 <div class="fw-bold text-dark"><?= htmlspecialchars($m['nombre'] ?? 'Invitado') ?></div>
-                                                <a href="mailto:<?= htmlspecialchars($m['email'] ?? '') ?>" class="small text-decoration-none text-muted"><i class="bi bi-envelope-at me-1"></i><?= htmlspecialchars($m['email'] ?? '') ?></a>
+                                                <a href="mailto:<?= htmlspecialchars($m['email'] ?? '') ?>" class="small text-decoration-none text-muted"><i class="ph ph-envelope-simple me-1"></i><?= htmlspecialchars($m['email'] ?? '') ?></a>
                                             </td>
                                             <td>
                                                 <span class="badge bg-light text-dark border me-2"><?= htmlspecialchars($m['asunto'] ?? 'General') ?></span>
@@ -485,22 +508,24 @@ include_once '../includes/header.php';
                                             <td class="text-center pe-4">
                                                 <div class="d-inline-flex gap-1">
                                                     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalMensaje<?= $idMsg ?>" title="Leer mensaje completo">
-                                                        <i class="bi bi-eye-fill"></i> Leer
+                                                        <i class="ph-fill ph-eye"></i> Leer
                                                     </button>
                                                     <?php if (!$esLeido): ?>
                                                         <form method="POST" class="d-inline-block m-0">
+                                                            <?= csrfField() ?>
                                                             <input type="hidden" name="action" value="marcar_leido">
                                                             <input type="hidden" name="mensaje_id" value="<?= $idMsg ?>">
                                                             <button type="submit" class="btn btn-sm btn-success text-white" title="Marcar como leído">
-                                                                <i class="bi bi-check-lg"></i>
+                                                                <i class="ph ph-check"></i>
                                                             </button>
                                                         </form>
                                                     <?php endif; ?>
                                                     <form method="POST" class="d-inline-block m-0" onsubmit="return confirm('¿Seguro que deseas eliminar este mensaje de contacto?');">
+                                                        <?= csrfField() ?>
                                                         <input type="hidden" name="action" value="eliminar_mensaje">
                                                         <input type="hidden" name="mensaje_id" value="<?= $idMsg ?>">
                                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar mensaje">
-                                                            <i class="bi bi-trash3-fill"></i>
+                                                            <i class="ph-fill ph-trash"></i>
                                                         </button>
                                                     </form>
                                                 </div>
@@ -518,7 +543,7 @@ include_once '../includes/header.php';
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content border-0 shadow-lg rounded-4">
                                         <div class="modal-header bg-azul-oscuro text-white border-0 pb-3" style="border-radius: 15px 15px 0 0;">
-                                            <h5 class="modal-title fw-bold" id="modalLabelMsg<?= $idMsg ?>"><i class="bi bi-envelope-open me-2"></i> Mensaje de <?= htmlspecialchars($m['nombre'] ?? 'Invitado') ?></h5>
+                                            <h5 class="modal-title fw-bold" id="modalLabelMsg<?= $idMsg ?>"><i class="ph ph-envelope-open me-2"></i> Mensaje de <?= htmlspecialchars($m['nombre'] ?? 'Invitado') ?></h5>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body p-4 text-start">
@@ -529,11 +554,11 @@ include_once '../includes/header.php';
                                             <div class="mb-3">
                                                 <label class="fw-bold text-muted small d-block">Remitente</label>
                                                 <div class="fw-bold text-dark"><?= htmlspecialchars($m['nombre'] ?? 'Invitado') ?></div>
-                                                <a href="mailto:<?= htmlspecialchars($m['email'] ?? '') ?>" class="text-decoration-none text-primary"><i class="bi bi-envelope-at me-1"></i><?= htmlspecialchars($m['email'] ?? '') ?></a>
+                                                <a href="mailto:<?= htmlspecialchars($m['email'] ?? '') ?>" class="text-decoration-none text-primary"><i class="ph ph-envelope-simple me-1"></i><?= htmlspecialchars($m['email'] ?? '') ?></a>
                                             </div>
                                             <div class="mb-3">
                                                 <label class="fw-bold text-muted small d-block">Fecha de Recepción</label>
-                                                <div class="text-muted"><i class="bi bi-calendar3 me-1"></i> <?= htmlspecialchars($m['fecha'] ?? 'N/A') ?></div>
+                                                <div class="text-muted"><i class="ph ph-calendar-blank me-1"></i> <?= htmlspecialchars($m['fecha'] ?? 'N/A') ?></div>
                                             </div>
                                             <hr>
                                             <div class="mb-3">
@@ -545,16 +570,18 @@ include_once '../includes/header.php';
                                         </div>
                                         <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
                                             <form method="POST" class="m-0" onsubmit="return confirm('¿Seguro que deseas eliminar este mensaje?');">
+                                                <?= csrfField() ?>
                                                 <input type="hidden" name="action" value="eliminar_mensaje">
                                                 <input type="hidden" name="mensaje_id" value="<?= $idMsg ?>">
-                                                <button type="submit" class="btn btn-outline-danger rounded-pill fw-bold px-3" data-bs-dismiss="modal"><i class="bi bi-trash"></i> Eliminar</button>
+                                                <button type="submit" class="btn btn-outline-danger rounded-pill fw-bold px-3" data-bs-dismiss="modal"><i class="ph ph-trash"></i> Eliminar</button>
                                             </form>
                                             <div class="d-flex gap-2">
                                                 <?php if (!$esLeido): ?>
                                                     <form method="POST" class="m-0">
+                                                        <?= csrfField() ?>
                                                         <input type="hidden" name="action" value="marcar_leido">
                                                         <input type="hidden" name="mensaje_id" value="<?= $idMsg ?>">
-                                                        <button type="submit" class="btn btn-success text-white rounded-pill fw-bold px-3" data-bs-dismiss="modal"><i class="bi bi-check-lg"></i> Marcar como Leído</button>
+                                                        <button type="submit" class="btn btn-success text-white rounded-pill fw-bold px-3" data-bs-dismiss="modal"><i class="ph ph-check"></i> Marcar como Leído</button>
                                                     </form>
                                                 <?php endif; ?>
                                                 <button type="button" class="btn btn-secondary rounded-pill fw-bold px-3" data-bs-dismiss="modal">Cerrar</button>

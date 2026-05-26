@@ -1,13 +1,19 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-require_once 'includes/supabase_api.php';
-require_once 'includes/mailer.php';
+require_once __DIR__ . '/../includes/security.php';
+initSecureSession();
+require_once '../includes/supabase_api.php';
+require_once '../includes/mailer.php';
 if (isset($_SESSION['usuario_id'])) {
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit;
 }
 $pendiente_verificacion = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrfCheck()) {
+        $error = "Solicitud no válida. Recarga la página e inténtalo de nuevo.";
+    } elseif (!rateLimit('registro', 3, 600)) {
+        $error = "Demasiados intentos de registro. Espera 10 minutos.";
+    } else {
     $nombre   = trim($_POST['nombre']   ?? '');
     $apellido = trim($_POST['apellido'] ?? '');
     $email    = trim(strtolower($_POST['email'] ?? ''));
@@ -23,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($existe) && !isset($existe['error'])) {
             $error = "Este email ya está registrado. ¿Quieres <a href='login.php'>iniciar sesión</a>?";
         } else {
-            $file_verif = __DIR__ . '/data/pending_verifications.json';
+            $file_verif = __DIR__ . '/../data/pending_verifications.json';
             $pendientes = file_exists($file_verif) ? (json_decode(file_get_contents($file_verif), true) ?: []) : [];
             $ya_pendiente = array_filter($pendientes, fn($p) => $p['email'] === $email && strtotime($p['expires_at']) > time());
             if (!empty($ya_pendiente)) {
@@ -42,12 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'expires_at' => $expiry,
                 ];
                 file_put_contents($file_verif, json_encode($pendientes, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-                $link   = SITE_URL . '/verificar_email.php?token=' . $token;
+                $link   = SITE_URL . '/auth/verificar_email.php?token=' . $token;
                 $cuerpo = emailPlantillaVerificacion(htmlspecialchars($nombre), $link);
                 enviarEmail($email, 'Confirma tu cuenta en AutoStock', $cuerpo);
                 $pendiente_verificacion = true;
             }
         }
+    }
     }
 }
 ?>
@@ -56,9 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Registro | AutoStock</title>
-    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="icon" type="image/svg+xml" href="../assets/img/logo.svg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1" defer></script>
     <style>
         :root { --azul-oscuro: #192C76; --naranja: #FF7403; }
         .btn-naranja { background-color: var(--naranja); border-color: var(--naranja); color: #fff; }
@@ -71,8 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="d-flex align-items-center justify-content-center min-vh-100 py-4">
     <div class="container" style="max-width: 520px;">
         <div class="text-center mb-4">
-            <a href="index.php">
-                <img src="assets/img/logo.svg" alt="AutoStock" style="height:64px;width:auto;">
+            <a href="../index.php">
+                <img src="../assets/img/logo.svg" alt="AutoStock" style="height:64px;width:auto;">
             </a>
         </div>
         <div class="card border-0 shadow-sm rounded-4 p-4">
@@ -83,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p class="text-muted">Hemos enviado un email de confirmación a <strong><?= htmlspecialchars($_POST['email'] ?? '') ?></strong>.<br>
                     Haz clic en el enlace del correo para activar tu cuenta.</p>
                     <div class="alert alert-info small text-start mt-3">
-                        <i class="bi bi-info-circle-fill me-1"></i>
+                        <i class="ph-fill ph-info me-1"></i>
                         Si no ves el email, revisa tu carpeta de <strong>Spam</strong>. El enlace es válido durante <strong>24 horas</strong>.
                     </div>
                     <a href="login.php" class="btn btn-naranja rounded-pill px-4 mt-2 fw-bold">Ir al inicio de sesión</a>
@@ -95,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="alert alert-danger small py-2"><?= $error ?></div>
                 <?php endif; ?>
                 <form method="POST">
+                    <?= csrfField() ?>
                     <div class="row">
                         <div class="col-6 mb-3">
                             <label class="form-label fw-semibold small">Nombre</label>
@@ -110,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="mb-3">
                         <label class="form-label fw-semibold small">Email</label>
                         <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                            <span class="input-group-text bg-light border-end-0"><i class="ph ph-envelope-simple text-muted"></i></span>
                             <input type="email" name="email" class="form-control border-start-0 ps-0"
                                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
                         </div>
@@ -118,12 +126,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="mb-3">
                         <label class="form-label fw-semibold small">Contraseña</label>
                         <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                            <span class="input-group-text bg-light border-end-0"><i class="ph ph-lock-simple text-muted"></i></span>
                             <input type="password" name="password" id="password"
                                    class="form-control border-start-0 ps-0"
                                    placeholder="Mínimo 8 caracteres" required minlength="8">
                             <button type="button" class="btn btn-outline-secondary" id="togglePass">
-                                <i class="bi bi-eye" id="eyeIcon"></i>
+                                <i class="ph ph-eye" id="eyeIcon"></i>
                             </button>
                         </div>
                         <div class="mt-2 bg-light rounded overflow-hidden" style="height:4px;">
@@ -134,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="mb-3">
                         <label class="form-label fw-semibold small">Confirmar contraseña</label>
                         <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock-fill text-muted"></i></span>
+                            <span class="input-group-text bg-light border-end-0"><i class="ph-fill ph-lock-simple text-muted"></i></span>
                             <input type="password" name="confirmar" id="confirmar"
                                    class="form-control border-start-0 ps-0"
                                    placeholder="Repite la contraseña" required>
@@ -149,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </label>
                     </div>
                     <button type="submit" class="btn btn-naranja w-100 fw-bold rounded-pill py-2">
-                        <i class="bi bi-person-plus me-2"></i> Crear cuenta
+                        <i class="ph ph-user-plus me-2"></i> Crear cuenta
                     </button>
                 </form>
                 <p class="text-center mt-3 small text-muted">¿Ya tienes cuenta?
@@ -163,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const inp = document.getElementById('password');
             const icon = document.getElementById('eyeIcon');
             inp.type = inp.type === 'password' ? 'text' : 'password';
-            icon.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+            icon.className = inp.type === 'password' ? 'ph ph-eye' : 'ph ph-eye-slash';
         });
         document.getElementById('password')?.addEventListener('input', function() {
             const val = this.value;

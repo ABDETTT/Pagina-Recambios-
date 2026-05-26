@@ -1,5 +1,6 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/includes/security.php';
+initSecureSession();
 require_once 'includes/supabase_api.php';
 $pagina_titulo = "Mi Carrito | AutoStock";
 include_once 'includes/header.php';
@@ -13,12 +14,12 @@ $total = 0;
 ?>
 <main class="container py-5" style="max-width: 900px;">
     <header class="d-flex align-items-center mb-4">
-        <i class="bi bi-cart3 display-6 text-naranja me-3"></i>
+        <i class="ph ph-shopping-cart-simple display-6 text-naranja me-3"></i>
         <h2 class="mb-0 fw-bold">Mi Carrito</h2>
     </header>
     <?php if (isset($_SESSION['error_compra'])): ?>
         <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i> <?= htmlspecialchars($_SESSION['error_compra']) ?>
+            <i class="ph-fill ph-warning me-2"></i> <?= htmlspecialchars($_SESSION['error_compra']) ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <?php unset($_SESSION['error_compra']); ?>
@@ -26,11 +27,11 @@ $total = 0;
     <?php if (empty($carrito)): ?>
         <div class="card shadow-sm border-0 text-center py-5">
             <div class="card-body">
-                <i class="bi bi-bag-x display-1 text-muted opacity-50 mb-3"></i>
+                <i class="ph ph-handbag display-1 text-muted opacity-50 mb-3"></i>
                 <h4 class="fw-bold">Tu carrito está vacío</h4>
                 <p class="text-muted mb-4">¡Explora nuestro catálogo y encuentra los mejores repuestos para tu vehículo!</p>
                 <a href="catalogo.php" class="btn btn-naranja btn-lg rounded-pill px-4 fw-bold">
-                    <i class="bi bi-search me-2"></i> Ir al Catálogo
+                    <i class="ph ph-magnifying-glass me-2"></i> Ir al Catálogo
                 </a>
             </div>
         </div>
@@ -62,7 +63,7 @@ $total = 0;
                                         <input type="hidden" name="id_producto" value="<?= $id ?>">
                                         <input type="hidden" name="accion" value="decrementar">
                                         <button type="submit" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; padding: 0;" title="Disminuir cantidad">
-                                            <i class="bi bi-dash fs-6 fw-bold"></i>
+                                            <i class="ph ph-minus fs-6 fw-bold"></i>
                                         </button>
                                     </form>
                                     <span class="badge bg-secondary rounded-pill px-3 py-2 fs-6" style="min-width: 45px;">
@@ -72,7 +73,7 @@ $total = 0;
                                         <input type="hidden" name="id_producto" value="<?= $id ?>">
                                         <input type="hidden" name="accion" value="incrementar">
                                         <button type="submit" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; padding: 0;" title="Aumentar cantidad">
-                                            <i class="bi bi-plus fs-6 fw-bold"></i>
+                                            <i class="ph ph-plus fs-6 fw-bold"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -88,7 +89,7 @@ $total = 0;
                                     <input type="hidden" name="id_producto" value="<?= $id ?>">
                                     <input type="hidden" name="accion" value="eliminar">
                                     <button type="submit" class="btn btn-sm btn-outline-danger border-0 rounded-circle p-2" title="Eliminar producto" style="line-height: 1;">
-                                        <i class="bi bi-trash3-fill"></i>
+                                        <i class="ph-fill ph-trash"></i>
                                     </button>
                                 </form>
                             </td>
@@ -101,7 +102,7 @@ $total = 0;
         <div class="row align-items-center mb-5">
             <div class="col-md-6 mb-3 mb-md-0">
                 <a href="?vaciar=1" class="btn btn-outline-danger rounded-pill fw-bold px-4">
-                    <i class="bi bi-trash3 me-2"></i> Vaciar Carrito
+                    <i class="ph ph-trash me-2"></i> Vaciar Carrito
                 </a>
             </div>
             <div class="col-md-6 text-md-end">
@@ -109,7 +110,7 @@ $total = 0;
                     <p class="text-muted mb-1">Total a pagar:</p>
                     <h2 class="mb-3 text-naranja fw-bold display-6"><?= number_format($total, 2) ?> €</h2>
                     <a href="finalizar_pedido.php" class="btn btn-success btn-lg w-100 rounded-pill fw-bold shadow">
-                        <i class="bi bi-credit-card me-2"></i> Finalizar Compra
+                        <i class="ph ph-credit-card me-2"></i> Finalizar Compra
                     </a>
                 </div>
             </div>

@@ -1,11 +1,12 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/includes/security.php';
+initSecureSession();
 $pagina_titulo = "Video Tutoriales | AutoStock";
 require_once 'includes/supabase_api.php';
 include_once 'includes/header.php';
 $tutoriales = [
     [
-        "id_yt" => "5m3O5Sna4gM",
+        "id_yt" => "5SFvbs9W5KM",
         "filtro" => "motor_fluidos",
         "badge_color" => "primary",
         "badge_texto" => "Fluidos",
@@ -17,7 +18,7 @@ $tutoriales = [
         "btn_texto" => "Ver Aceites Compatibles"
     ],
     [
-        "id_yt" => "JZbX2sK1c6Y",
+        "id_yt" => "Reh8qyi4d0I",
         "filtro" => "frenos",
         "badge_color" => "secondary",
         "badge_texto" => "Frenos",
@@ -29,7 +30,7 @@ $tutoriales = [
         "btn_texto" => "Comprar Pastillas"
     ],
     [
-        "id_yt" => "Rk540JgO1_I",
+        "id_yt" => "DeSI567zt88",
         "filtro" => "mantenimiento",
         "badge_color" => "info",
         "badge_texto" => "Eléctrico",
@@ -41,7 +42,7 @@ $tutoriales = [
         "btn_texto" => "Ver Baterías"
     ],
     [
-        "id_yt" => "vO82-fR1p6g",
+        "id_yt" => "vYkEZvH1Wy0",
         "filtro" => "motor_fluidos",
         "badge_color" => "dark",
         "badge_texto" => "Motor",
@@ -53,7 +54,7 @@ $tutoriales = [
         "btn_texto" => "Buscar Kits"
     ],
     [
-        "id_yt" => "S22PqHl1TTo",
+        "id_yt" => "8lGLwk06mUI",
         "filtro" => "mantenimiento",
         "badge_color" => "primary",
         "badge_texto" => "Mantenimiento",
@@ -67,9 +68,9 @@ $tutoriales = [
 ];
 ?>
 <main class="bg-light pb-5">
-    <section class="bg-dark text-white py-5 mb-5 text-center" style="background: linear-gradient(rgba(0,36,107,0.9), rgba(0,0,0,0.9)), url('/AutoStock/assets/img/img4.png'); background-size: cover; background-position: center;">
+    <section class="bg-dark text-white py-5 mb-5 text-center" style="background: linear-gradient(rgba(0,36,107,0.9), rgba(0,0,0,0.9)), url('assets/img/img4.png'); background-size: cover; background-position: center;">
         <div class="container py-4">
-            <h1 class="display-4 fw-bold mb-3"><i class="bi bi-play-circle text-warning me-3"></i>Aprende y Ahorra</h1>
+            <h1 class="display-4 fw-bold mb-3"><i class="ph ph-play-circle text-warning me-3"></i>Aprende y Ahorra</h1>
             <p class="lead opacity-75 mx-auto" style="max-width: 700px;">
                 Descubre cómo instalar tus propios recambios paso a paso. Ahorra dinero en el taller y mantén tu coche en perfectas condiciones con las guías de nuestros expertos.
             </p>
@@ -77,10 +78,10 @@ $tutoriales = [
     </section>
     <nav class="container mb-4" aria-label="Filtrar tutoriales">
         <div class="d-flex flex-wrap gap-2 justify-content-center" id="botones-filtro">
-            <button class="btn btn-primary rounded-pill px-4 fw-bold active" onclick="filtrarVideos('todos', this)"><i class="bi bi-grid-fill me-2"></i>Todos</button>
-            <button class="btn btn-outline-secondary rounded-pill px-4 bg-white text-dark" onclick="filtrarVideos('mantenimiento', this)"><i class="bi bi-tools me-2"></i>Mantenimiento Básico</button>
-            <button class="btn btn-outline-secondary rounded-pill px-4 bg-white text-dark" onclick="filtrarVideos('frenos', this)"><i class="bi bi-record-circle me-2"></i>Frenos</button>
-            <button class="btn btn-outline-secondary rounded-pill px-4 bg-white text-dark" onclick="filtrarVideos('motor_fluidos', this)"><i class="bi bi-gear-fill me-2"></i>Motor y Fluidos</button>
+            <button class="btn btn-primary rounded-pill px-4 fw-bold active" onclick="filtrarVideos('todos', this)"><i class="ph-fill ph-grid-four me-2"></i>Todos</button>
+            <button class="btn btn-outline-secondary rounded-pill px-4 bg-white text-dark" onclick="filtrarVideos('mantenimiento', this)"><i class="ph ph-wrench me-2"></i>Mantenimiento Básico</button>
+            <button class="btn btn-outline-secondary rounded-pill px-4 bg-white text-dark" onclick="filtrarVideos('frenos', this)"><i class="ph ph-record me-2"></i>Frenos</button>
+            <button class="btn btn-outline-secondary rounded-pill px-4 bg-white text-dark" onclick="filtrarVideos('motor_fluidos', this)"><i class="ph-fill ph-gear me-2"></i>Motor y Fluidos</button>
         </div>
     </nav>
     <div class="container">
@@ -94,7 +95,7 @@ $tutoriales = [
                         <div class="card-body p-4 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="badge bg-<?= htmlspecialchars($tut['badge_color']) ?>-subtle text-<?= htmlspecialchars($tut['badge_color']) ?>"><?= htmlspecialchars($tut['badge_texto']) ?></span>
-                                <span class="badge bg-<?= htmlspecialchars($tut['dif_color']) ?>"><i class="bi bi-wrench me-1"></i><?= htmlspecialchars($tut['dif_texto']) ?></span>
+                                <span class="badge bg-<?= htmlspecialchars($tut['dif_color']) ?>"><i class="ph ph-wrench me-1"></i><?= htmlspecialchars($tut['dif_texto']) ?></span>
                             </div>
                             <h5 class="fw-bold mb-2"><?= htmlspecialchars($tut['titulo']) ?></h5>
                             <p class="text-muted small mb-4 desc-clamp"><?= htmlspecialchars($tut['desc']) ?></p>
@@ -105,7 +106,7 @@ $tutoriales = [
             <?php endforeach; ?>
             <article class="col-md-6 col-lg-4 tarjeta-tut" data-categoria="todos">
                 <div class="card h-100 shadow border-0 bg-primary text-white rounded-4 overflow-hidden d-flex align-items-center justify-content-center text-center p-5 card-hover">
-                    <i class="bi bi-youtube display-1 text-white mb-3 opacity-75"></i>
+                    <i class="ph ph-youtube-logo display-1 text-white mb-3 opacity-75"></i>
                     <h4 class="fw-bold mb-3">¿No encuentras tu tutorial?</h4>
                     <p class="small opacity-75 mb-4">Suscríbete a nuestro canal oficial para no perderte las nuevas guías de mecánica que subimos cada semana.</p>
                     <a href="https://www.youtube.com/" target="_blank" class="btn btn-light text-primary fw-bold rounded-pill px-4">Ir a YouTube</a>

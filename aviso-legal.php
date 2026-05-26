@@ -10,7 +10,7 @@ require_once 'includes/header.php';
         </ol>
     </nav>
     <div class="card border-0 shadow-sm rounded-4 p-4 mb-4" style="background:#f0f4ff;">
-        <h6 class="fw-bold titulo-oscuro mb-3"><i class="bi bi-list-ul me-2"></i>Contenido de esta página</h6>
+        <h6 class="fw-bold titulo-oscuro mb-3"><i class="ph ph-list me-2"></i>Contenido de esta página</h6>
         <div class="row g-2 small">
             <div class="col-md-6">
                 <a href="#aviso" class="text-decoration-none d-block py-1" style="color:var(--azul-oscuro);">→ Aviso Legal</a>
@@ -151,10 +151,10 @@ require_once 'includes/header.php';
         </section>
         <div class="mt-5 pt-4 border-top text-center">
             <a href="index.php" class="btn btn-outline-secondary rounded-pill px-4 me-2">
-                <i class="bi bi-arrow-left me-1"></i> Volver al inicio
+                <i class="ph ph-arrow-left me-1"></i> Volver al inicio
             </a>
             <a href="politica-privacidad.php" class="btn rounded-pill px-4" style="background:var(--azul-oscuro);color:#fff;">
-                Política de Privacidad <i class="bi bi-arrow-right ms-1"></i>
+                Política de Privacidad <i class="ph ph-arrow-right ms-1"></i>
             </a>
         </div>
     </div>

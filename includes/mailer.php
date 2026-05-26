@@ -2,7 +2,7 @@
 define('MAIL_FROM',      'noreply@autostock.com');
 define('MAIL_FROM_NAME', 'AutoStock');
 define('MAIL_REPLY_TO',  'soporte@autostock.com');
-define('SITE_URL',       'http://localhost/AutoStock');
+define('SITE_URL',       'http://localhost:8000');
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
@@ -13,12 +13,12 @@ function enviarEmail(string $para, string $asunto, string $cuerpo_html): bool {
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
-        $mail->Host       = 'sandbox.smtp.mailtrap.io'; 
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'TU_USUARIO_MAILTRAP';      
-        $mail->Password   = 'TU_CONTRASEÑA_MAILTRAP';   
+        $mail->Host = 'sandbox.smtp.mailtrap.io';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'TU_USUARIO_MAILTRAP';
+        $mail->Password = 'TU_CONTRASEÑA_MAILTRAP';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 2525; 
+        $mail->Port = 2525;
         $mail->setFrom(MAIL_FROM, MAIL_FROM_NAME);
         $mail->addAddress($para);
         $mail->addReplyTo(MAIL_REPLY_TO, 'Soporte AutoStock');

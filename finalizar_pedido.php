@@ -1,8 +1,9 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/includes/security.php';
+initSecureSession();
 require_once 'includes/supabase_api.php';
 if (!isset($_SESSION['usuario_id'])) {
-    header("Location: login.php?redirect=finalizar_pedido.php");
+    header("Location: auth/login.php?redirect=finalizar_pedido.php");
     exit;
 }
 $carrito = $_SESSION['carrito'] ?? [];
@@ -43,28 +44,29 @@ include_once 'includes/header.php';
             <div class="card shadow-sm border-0 rounded-4 p-4 h-100">
                 <h5 class="fw-bold mb-4 border-bottom pb-2">Método de Pago</h5>
                 <form action="scripts/procesar_pedido.php" method="POST">
+                    <?= csrfField() ?>
                     <div class="mb-4">
                         <div class="form-check border p-3 rounded-3 mb-2">
                             <input class="form-check-input ms-0 me-2" type="radio" name="forma_pago" id="tarjeta" value="Tarjeta de Crédito" checked>
                             <label class="form-check-label fw-bold" for="tarjeta">
-                                <i class="bi bi-credit-card me-1"></i> Tarjeta de Crédito
+                                <i class="ph ph-credit-card me-1"></i> Tarjeta de Crédito
                             </label>
                         </div>
                         <div class="form-check border p-3 rounded-3 mb-2">
                             <input class="form-check-input ms-0 me-2" type="radio" name="forma_pago" id="transferencia" value="Transferencia Bancaria">
                             <label class="form-check-label fw-bold" for="transferencia">
-                                <i class="bi bi-bank me-1"></i> Transferencia
+                                <i class="ph ph-bank me-1"></i> Transferencia
                             </label>
                         </div>
                         <div class="form-check border p-3 rounded-3">
                             <input class="form-check-input ms-0 me-2" type="radio" name="forma_pago" id="paypal" value="PayPal">
                             <label class="form-check-label fw-bold" for="paypal">
-                                <i class="bi bi-paypal me-1"></i> PayPal
+                                <i class="ph ph-paypal-logo me-1"></i> PayPal
                             </label>
                         </div>
                     </div>
                     <p class="small text-muted mb-4">
-                        <i class="bi bi-shield-lock-fill"></i> Pago 100% seguro. Al hacer clic en "Confirmar", procesaremos tu pedido de inmediato.
+                        <i class="ph-fill ph-shield-check"></i> Pago 100% seguro. Al hacer clic en "Confirmar", procesaremos tu pedido de inmediato.
                     </p>
                     <button type="submit" class="btn btn-naranja btn-lg w-100 rounded-pill fw-bold shadow">
                         Confirmar y Pagar
